@@ -1,2 +1,2 @@
-# The-HackStreet
-Coding Team
+# EduJoy
+Ed-Tech product we are working on
