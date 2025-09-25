@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>🗻 Disaster Defender - Educational Tower Defense Game</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh; display: flex; justify-content: center; align-items: center;
+            overflow: hidden;
+        }
+        .game-container { background: rgba(255,255,255,0.95); border-radius: 20px; padding: 30px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); max-width: 900px; width: 90%; position: relative; }
+        .intro-screen { text-align: center; animation: fadeIn 0.5s ease; }
+        .intro-screen h1 { font-size: 3em; margin-bottom: 20px; background: linear-gradient(45deg, #f093fb, #f5576c); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-shadow: 2px 2px 4px rgba(0,0,0,0.1); }
+        .intro-text { font-size: 1.3em; color: #4a5568; margin-bottom: 30px; line-height: 1.6; }
+        .difficulty-buttons { display: flex; gap: 20px; justify-content: center; margin-top: 30px; }
+        .btn { padding: 15px 30px; font-size: 1.1em; border: none; border-radius: 50px; cursor: pointer; transition: all 0.3s ease; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; }
+        .btn-start { background: linear-gradient(45deg, #667eea, #764ba2); color: white; box-shadow: 0 4px 15px rgba(102,126,234,0.4); }
+        .btn-start:hover { transform: translateY(-3px); box-shadow: 0 6px 20px rgba(102,126,234,0.5); }
+        .btn-easy { background: linear-gradient(45deg, #56ab2f, #a8e063); }
+        .btn-medium { background: linear-gradient(45deg, #f2994a, #f2c94c); }
+        .btn-hard { background: linear-gradient(45deg, #eb3349, #f45c43); }
+        .difficulty-buttons .btn { color: white; min-width: 120px; }
+        .game-screen { display: none; animation: slideIn 0.5s ease; }
+        .game-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; padding: 15px; background: linear-gradient(135deg, #667eea15, #764ba215); border-radius: 15px; }
+        .health-container { flex: 1; margin-right: 20px; }
+        .health-label { font-weight: bold; color: #4a5568; margin-bottom: 5px; }
+        .health-bar { width: 100%; height: 30px; background: #e2e8f0; border-radius: 15px; overflow: hidden; position: relative; }
+        .health-fill { height: 100%; background: linear-gradient(90deg, #48bb78, #38a169); transition: width 0.5s ease, background 0.5s ease; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; }
+        .health-fill.danger { background: linear-gradient(90deg, #f56565, #e53e3e); }
+        .health-fill.warning { background: linear-gradient(90deg, #ed8936, #dd6b20); }
+        .score-display { font-size: 1.2em; font-weight: bold; color: #4a5568; }
+        .battlefield { height: 150px; background: linear-gradient(to bottom, #87ceeb, #98d8c8); border-radius: 15px; margin-bottom: 25px; position: relative; overflow: hidden; box-shadow: inset 0 2px 10px rgba(0,0,0,0.1); }
+        .city { position: absolute; right: 20px; bottom: 10px; font-size: 4em; animation: pulse 2s infinite; }
+        .disaster { position: absolute; font-size: 3em; left: -60px; top: 50%; transform: translateY(-50%); animation: moveDisaster 8s linear; filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.3)); }
+        .defense-tower { position: absolute; font-size: 2.5em; animation: deployTower 0.5s ease; filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.3)); }
+        @keyframes moveDisaster { to { left: calc(100% - 100px); } }
+        @keyframes deployTower { from { transform: scale(0) rotate(0deg); opacity: 0; } to { transform: scale(1) rotate(360deg); opacity: 1; } }
+        @keyframes pulse { 0%,100%{transform:scale(1);} 50%{transform:scale(1.05);} }
+        .question-container { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        .timer-bar { width: 100%; height: 8px; background: #e2e8f0; border-radius: 4px; overflow: hidden; margin-bottom: 20px; }
+        .timer-fill { height: 100%; background: linear-gradient(90deg, #4299e1, #3182ce); transition: width 0.1s linear, background 0.5s ease; border-radius: 4px; }
+        .timer-fill.warning { background: linear-gradient(90deg, #f56565, #e53e3e); animation: timerPulse 0.5s infinite; }
+        @keyframes timerPulse { 0%,100%{opacity:1;} 50%{opacity:0.7;} }
+        .question { font-size: 1.3em; color: #2d3748; margin-bottom: 20px; font-weight: 600; }
+        .answers { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
+        .answer-btn { padding: 15px; background: white; border: 3px solid #e2e8f0; border-radius: 12px; cursor: pointer; transition: all 0.3s ease; font-size: 1em; color: #4a5568; font-weight: 500; }
+        .answer-btn:hover { background: #f7fafc; border-color: #667eea; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(102,126,234,0.2); }
+        .answer-btn.correct { background: linear-gradient(45deg, #48bb78, #38a169); color: white; border-color: #38a169; animation: correctPulse 0.5s ease; }
+        .answer-btn.incorrect { background: linear-gradient(45deg, #f56565, #e53e3e); color: white; border-color: #e53e3e; animation: shake 0.5s ease; }
+        @keyframes correctPulse { 0%,100%{transform:scale(1);} 50%{transform:scale(1.05);} }
+        @keyframes shake { 0%,100%{transform:translateX(0);} 25%{transform:translateX(-5px);} 75%{transform:translateX(5px);} }
+        .game-over, .game-win { text-align: center; padding: 40px; animation: fadeIn 0.5s ease; }
+        .game-over h2, .game-win h2 { font-size: 2.5em; margin-bottom: 20px; }
+        .game-over h2 { color: #e53e3e; }
+        .game-win h2 { color: #38a169; }
+        .final-score { font-size: 1.5em; color: #4a5568; margin-bottom: 30px; }
+        .btn-restart { background: linear-gradient(45deg, #667eea, #764ba2); color: white; }
+        .wave-indicator { text-align: center; font-size: 1.2em; color: #4a5568; margin-bottom: 15px; font-weight: bold; }
+        .defense-effect { position: absolute; width: 100%; height: 100%; background: radial-gradient(circle, rgba(72,187,120,0.3), transparent); animation: defenseWave 1s ease-out; pointer-events: none; }
+        @keyframes defenseWave { from { transform: scale(0); opacity: 1; } to { transform: scale(2); opacity: 0; } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .particles { position: absolute; width: 100%; height: 100%; pointer-events: none; }
+        .particle { position: absolute; width: 4px; height: 4px; background: #667eea; border-radius: 50%; animation: float 3s linear infinite; }
+        .back-btn {
+        display: inline-block;        /* Makes margin-top work */
+        width: 150px;                 
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        color: white;
+        text-align: center;           
+        text-decoration: none;        
+        border: none;
+        padding: 10px 20px;
+        border-radius: 12px;
+        font-size: 16px;
+        cursor: pointer;
+        margin-top: 40px;             /* space from top */
+        margin-left: 20px;            /* optional left spacing */
+    }
+
+    .back-btn:hover {
+        background: #e68900;
+    }
+
+        @keyframes float { to { transform: translateY(-100vh) rotate(360deg); opacity: 0; } }
+    </style>
+</head>
+<body>
+    <a href="game.html" class="back-btn">⬅ Back to Home</a>
+    <div class="particles" id="particles"></div>
+    <div class="game-container">
+        <!-- Intro Screen -->
+        <div class="intro-screen" id="introScreen">
+            <h1>🗻 Disaster Defender</h1>
+            <p class="intro-text">
+                Defend your city from natural disasters by answering geography questions!<br />
+                Each correct answer builds a defense to protect your city.<br />
+                Choose your difficulty level to begin:
+            </p>
+            <div class="difficulty-buttons">
+                <button class="btn btn-easy" onclick="startGame('easy')">Easy (5)</button>
+                <button class="btn btn-medium" onclick="startGame('medium')">Medium (7)</button>
+                <button class="btn btn-hard" onclick="startGame('hard')">Hard (10)</button>
+            </div>
+        </div>
+
+        <!-- Game Screen -->
+        <div class="game-screen" id="gameScreen">
+            <div class="game-header">
+                <div class="health-container">
+                    <div class="health-label">City Health</div>
+                    <div class="health-bar">
+                        <div class="health-fill" id="healthFill">100%</div>
+                    </div>
+                </div>
+                <div class="score-display">Score: <span id="score">0</span></div>
+            </div>
+
+            <div class="wave-indicator" id="waveIndicator">Wave 1 of 5</div>
+
+            <div class="battlefield" id="battlefield">
+                <div class="city">🏙️</div>
+            </div>
+
+            <div class="question-container">
+                <div class="timer-bar"><div class="timer-fill" id="timerFill"></div></div>
+                <div class="question" id="questionText">Question will appear here</div>
+                <div class="answers" id="answersContainer"></div>
+            </div>
+        </div>
+
+        <!-- Game Over Screen -->
+        <div class="game-over" id="gameOverScreen" style="display:none;">
+            <h2>💥 Game Over!</h2>
+            <p class="final-score">Your city was destroyed!</p>
+            <p class="final-score">Final Score: <span id="finalScoreLose">0</span></p>
+            <button class="btn btn-restart" onclick="restartGame()">Try Again</button>
+        </div>
+
+        <!-- Game Win Screen -->
+        <div class="game-win" id="gameWinScreen" style="display:none;">
+            <h2>🎉 You Defended the City!</h2>
+            <p class="final-score">Congratulations! Your knowledge saved the day!</p>
+            <p class="final-score">Final Score: <span id="finalScoreWin">0</span></p>
+            <button class="btn btn-restart" onclick="restartGame()">Play Again</button>
+        </div>
+    </div>
+
+    <script>
+        // Game State
+        let gameState = {
+            difficulty: 'easy', currentQuestion: 0, score: 0, health: 100,
+            timer: null, timeLeft: 15, questions: [], currentDisaster: null,
+            defenses: [], currentChoices: [] // <-- holds the shuffled mapping for the CURRENT question
+        };
+
+        // Question Pool
+        const questionPool = [
+            { question: "Which plate boundary causes most earthquakes?", answers: ["Convergent","Divergent","Transform","All of the above"], correct: 0, difficulty: "medium" },
+            { question: "Which ocean is most prone to tsunamis?", answers: ["Pacific","Atlantic","Indian","Arctic"], correct: 0, difficulty: "easy" },
+            { question: "Which country has the most active volcanoes?", answers: ["USA","Japan","Indonesia","Italy"], correct: 2, difficulty: "medium" },
+            { question: "What scale measures earthquake magnitude?", answers: ["Richter","Beaufort","Fujita","Celsius"], correct: 0, difficulty: "easy" },
+            { question: "Which layer of the Earth contains tectonic plates?", answers: ["Mantle","Crust","Core","Outer Core"], correct: 1, difficulty: "medium" },
+            { question: "What is the 'Ring of Fire'?", answers: ["A volcanic island","A fire tornado","Pacific volcanic belt","Desert phenomenon"], correct: 2, difficulty: "easy" },
+            { question: "What causes a tsunami?", answers: ["Heavy rain","Underwater earthquake","Strong winds","High tides"], correct: 1, difficulty: "easy" },
+            { question: "Which layer of the atmosphere is closest to the earth?", answers: ["Stratosphere","Troposphere","Mesosphere","Thermosphere"], correct: 1, difficulty: "medium" },
+            { question: "What is the deepest ocean trench?", answers: ["Java Trench","Puerto Rico Trench","Mariana Trench","Peru-Chile Trench"], correct: 2, difficulty: "hard" },
+            { question: "How fast can a tsunami travel in deep ocean?", answers: ["50 mph","100 mph","300 mph","500 mph"], correct: 3, difficulty: "hard" },
+            { question: "What type of volcano is Mount Fuji?", answers: ["Shield","Stratovolcano","Cinder cone","Caldera"], correct: 1, difficulty: "hard" },
+            { question: "Which earthquake was the strongest ever recorded?", answers: ["San Francisco 1906","Chile 1960","Japan 2011","Alaska 1964"], correct: 1, difficulty: "hard" },
+            { question: "The imajinary line that divides the earth into northern and southern hemisphere is?", answers: ["Tropic of cancer","Tropic of capricorn","Equator","Prime meridian"], correct: 2, difficulty: "medium" },
+            { question: "Which tectonic plate is the largest?", answers: ["North American","Pacific","African","Eurasian"], correct: 1, difficulty: "medium" },
+            { question: "Which of the following is a conventional energy resource?", answers: ["Solar energy","Wind energy","Coal","Biogas"], correct: 2, difficulty: "easy" },
+            { question: "What is the most common type of volcano?", answers: ["Shield","Cinder cone","Stratovolcano","Supervolcano"], correct: 1, difficulty: "medium" },
+            { question: "Which soil is known as 'Regur soil'", answers: ["Alluvial soil","Black soil","Laterite Soil","Red soil"], correct: 1, difficulty: "easy" },
+            { question: "Which is the highest peak in India", answers: ["Mount Everest","Nanda devi","Kanchenjunga","K2"], correct: 2, difficulty: "medium" },
+            { question: "Which is the largest producer of iron ore in India?", answers: ["Odisha","Chhattisgarh","Karnataka","Jharkhand"], correct: 0, difficulty: "medium" },
+            { question: "What triggers most landslides?", answers: ["Wind","Heavy rainfall","Temperature","Animals"], correct: 1, difficulty: "easy" },
+            { question: "How tall can a tsunami wave get?", answers: ["10 feet","50 feet","100+ feet","500 feet"], correct: 2, difficulty: "medium" },
+            { question: "Which type of forest is found in areas with rainfall more than 200cm?", answers: ["Tropical desiduous","Tropical evergreen","Thorn forest","Mangroves"], correct: 1, difficulty: "medium" },
+            { question: "Which of the following lakes is the largest freshwater lake in India", answers: ["Dal lake","Chilika lake","Wular lake","Sambhar lake"], correct: 2, difficulty: "medium" },
+            { question: "Which is the highest dam in India", answers: ["Bhakra Nangal dam","Hirakud dam","Sardar Sarovar Dam","Tehri Dam"], correct: 0, difficulty: "hard" },
+            { question: "Which crop is called 'golden fibre'?", answers: ["Jute","Cotton","Wheat","Sugarcane"], correct: 0, difficulty: "easy" }
+        ];
+
+        const disasters = ["🌍","🌊","🌋"]; const defenseIcons = ["🛡️","⚡","🔰"];
+
+        // Particles
+        function createParticles(){
+            const container = document.getElementById('particles');
+            for(let i=0;i<20;i++){
+                const p = document.createElement('div');
+                p.className = 'particle';
+                p.style.left = Math.random()*100+'%';
+                p.style.animationDelay = Math.random()*3+'s';
+                p.style.opacity = Math.random()*0.5+0.2;
+                container.appendChild(p);
+            }
+        }
+
+        function startGame(difficulty){
+            gameState.difficulty = difficulty; gameState.score = 0; gameState.health = 100; gameState.currentQuestion = 0;
+            let numQ = difficulty==='easy'?5 : difficulty==='medium'?7 : 10;
+            let available = difficulty==='easy' ? questionPool.filter(q=>q.difficulty==='easy')
+                         : difficulty==='medium'? questionPool.filter(q=>q.difficulty==='easy'||q.difficulty==='medium')
+                         : questionPool;
+            gameState.questions = shuffleArray([...available]).slice(0,numQ);
+            document.getElementById('introScreen').style.display='none';
+            document.getElementById('gameScreen').style.display='block';
+            updateHealthBar(); updateScore(); nextQuestion();
+        }
+
+        function nextQuestion(){
+            if(gameState.currentQuestion >= gameState.questions.length){ winGame(); return; }
+            document.getElementById('waveIndicator').textContent = `Wave ${gameState.currentQuestion+1} of ${gameState.questions.length}`;
+            spawnDisaster();
+            const q = gameState.questions[gameState.currentQuestion];
+            document.getElementById('questionText').textContent = q.question;
+            const answersContainer = document.getElementById('answersContainer');
+            answersContainer.innerHTML = '';
+            const shuffledAnswers = shuffleWithIndex(q.answers);
+            gameState.currentChoices = shuffledAnswers; // <-- persist mapping for this question
+            shuffledAnswers.forEach((item)=>{
+                const btn = document.createElement('button');
+                btn.className = 'answer-btn';
+                btn.textContent = item.text;
+                btn.onclick = () => checkAnswer(item.originalIndex);
+                answersContainer.appendChild(btn);
+            });
+            startTimer();
+        }
+
+        function spawnDisaster(){
+            const battlefield = document.getElementById('battlefield');
+            battlefield.querySelectorAll('.disaster').forEach(d=>d.remove());
+            const disaster = document.createElement('div');
+            disaster.className = 'disaster';
+            disaster.textContent = disasters[Math.floor(Math.random()*disasters.length)];
+            battlefield.appendChild(disaster);
+            gameState.currentDisaster = disaster;
+        }
+
+        function startTimer(){
+            clearInterval(gameState.timer); gameState.timeLeft = 15;
+            const tf = document.getElementById('timerFill');
+            tf.style.width = '100%'; tf.classList.remove('warning');
+            gameState.timer = setInterval(()=>{
+                gameState.timeLeft--;
+                const pct = (gameState.timeLeft/15)*100; tf.style.width = pct+'%';
+                if(gameState.timeLeft<=5) tf.classList.add('warning');
+                if(gameState.timeLeft<=0){ clearInterval(gameState.timer); checkAnswer(-1); }
+            },1000);
+        }
+
+        // FIXED: never reshuffle inside checkAnswer. Use the persisted mapping in gameState.currentChoices
+        function checkAnswer(answerIndex){
+            clearInterval(gameState.timer);
+            const q = gameState.questions[gameState.currentQuestion];
+            const buttons = document.querySelectorAll('.answer-btn');
+            // Disable all buttons
+            buttons.forEach(btn=>{ btn.onclick=null; btn.style.cursor='default'; });
+
+            // Display indexes based on the persisted shuffle
+            const correctDisplayIndex = gameState.currentChoices.findIndex(a=>a.originalIndex===q.correct);
+            const clickedDisplayIndex = gameState.currentChoices.findIndex(a=>a.originalIndex===answerIndex);
+
+            if(answerIndex === q.correct){
+                if(correctDisplayIndex >= 0) buttons[correctDisplayIndex].classList.add('correct');
+                gameState.score += 50; deployDefense();
+                const battlefield = document.getElementById('battlefield');
+                const effect = document.createElement('div'); effect.className='defense-effect';
+                battlefield.appendChild(effect); setTimeout(()=>effect.remove(),1000);
+            }else{
+                if(clickedDisplayIndex >= 0) buttons[clickedDisplayIndex].classList.add('incorrect');
+                if(correctDisplayIndex >= 0) buttons[correctDisplayIndex].classList.add('correct');
+                gameState.health -= 25; updateHealthBar();
+                const city = document.querySelector('.city');
+                city.style.animation = 'shake 0.5s ease'; setTimeout(()=>city.style.animation='pulse 2s infinite',500);
+                if(gameState.health <= 0){ setTimeout(()=>gameOver(),1500); return; }
+            }
+
+            updateScore(); gameState.currentQuestion++;
+            setTimeout(()=>{ if(gameState.health>0) nextQuestion(); }, 2000);
+        }
+
+        function deployDefense(){
+            const battlefield = document.getElementById('battlefield');
+            const defense = document.createElement('div'); defense.className='defense-tower';
+            defense.textContent = defenseIcons[Math.floor(Math.random()*defenseIcons.length)];
+            const positions=[30,50,70]; defense.style.left = positions[gameState.defenses.length%3]+'%';
+            defense.style.bottom='10px'; battlefield.appendChild(defense); gameState.defenses.push(defense);
+            if(gameState.currentDisaster){ gameState.currentDisaster.style.animationPlayState='paused'; setTimeout(()=>{ gameState.currentDisaster.style.opacity='0'; },500); }
+        }
+
+        function updateHealthBar(){
+            const el = document.getElementById('healthFill');
+            el.style.width = gameState.health+'%'; el.textContent = gameState.health+'%';
+            el.classList.remove('danger','warning');
+            if(gameState.health<=20) el.classList.add('danger'); else if(gameState.health<=50) el.classList.add('warning');
+        }
+
+        function updateScore(){ document.getElementById('score').textContent = gameState.score; }
+
+        function gameOver(){ clearInterval(gameState.timer); document.getElementById('gameScreen').style.display='none'; document.getElementById('gameOverScreen').style.display='block'; document.getElementById('finalScoreLose').textContent=gameState.score; }
+        function winGame(){ clearInterval(gameState.timer); document.getElementById('gameScreen').style.display='none'; document.getElementById('gameWinScreen').style.display='block'; document.getElementById('finalScoreWin').textContent=gameState.score; }
+
+        function restartGame(){
+            const battlefield = document.getElementById('battlefield');
+            battlefield.innerHTML = '<div class="city">🏙️</div>'; gameState.defenses=[]; gameState.currentChoices=[];
+            document.getElementById('gameScreen').style.display='none';
+            document.getElementById('gameOverScreen').style.display='none';
+            document.getElementById('gameWinScreen').style.display='none';
+            document.getElementById('introScreen').style.display='block';
+        }
+
+        function shuffleArray(arr){ const a=[...arr]; for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+        function shuffleWithIndex(array){ return array.map((text,originalIndex)=>({text,originalIndex})).sort(()=>Math.random()-0.5); }
+
+        // Initialize
+        createParticles();
+    </script>
+</body>
+</html>

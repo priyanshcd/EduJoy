@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Cell Quest — Simple</title>
+</head>
+<body>
+  <h1>Cell Quest</h1>
+  <button class="mode" data-mode="plant">🌿 Plant</button>
+  <button class="mode" data-mode="animal">🐾 Animal</button>
+
+  <div id="game" style="display:none">
+    <h2 id="title"></h2>
+  </div>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  // Attach listeners
+  document.querySelectorAll(".mode").forEach(btn=>{
+    btn.addEventListener("click",()=>{
+      const mode = btn.dataset.mode;
+      document.getElementById("game").style.display="block";
+      document.getElementById("title").textContent = 
+        mode==="plant" ? "Plant Cell Game Started" : "Animal Cell Game Started";
+    });
+  });
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>History Timeline Challenge</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #ff6b6b, #ff8e53);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .game-content {
+            padding: 30px;
+        }
+
+        .intro-screen {
+            text-align: center;
+            padding: 50px 0;
+        }
+
+        .intro-message {
+            font-size: 1.5rem;
+            margin-bottom: 30px;
+            color: #555;
+        }
+
+        .difficulty-selector {
+            margin: 30px 0;
+        }
+
+        .difficulty-selector h3 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .difficulty-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .difficulty-btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+            color: #333;
+            border: 2px solid #ddd;
+        }
+
+        .difficulty-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .difficulty-btn.selected {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-color: #667eea;
+        }
+
+        .start-btn, .restart-btn, .check-btn, .reset-btn {
+            padding: 15px 40px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 10px;
+        }
+
+        .start-btn {
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            color: white;
+        }
+
+        .restart-btn {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            color: white;
+        }
+
+        .check-btn {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+        }
+
+        .reset-btn {
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+            color: white;
+        }
+
+        .start-btn:hover, .restart-btn:hover, .check-btn:hover, .reset-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .game-area {
+            display: none;
+        }
+
+        .timer-section {
+            margin-bottom: 30px;
+        }
+
+        .timer-label {
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .timer-bar-container {
+            width: 100%;
+            height: 30px;
+            background: #e0e0e0;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .timer-bar {
+            height: 100%;
+            background: linear-gradient(135deg, #4CAF50, #2196F3);
+            transition: width 0.1s linear, background 0.3s ease;
+            border-radius: 15px;
+        }
+
+        .timer-bar.warning {
+            background: linear-gradient(135deg, #ff6b6b, #e74c3c);
+        }
+
+        .game-controls {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .main-game {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin-bottom: 30px;
+        }
+
+        .events-pool {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .events-pool h3 {
+            margin-bottom: 20px;
+            color: #333;
+            text-align: center;
+        }
+
+        .timeline-area {
+            background: #fff;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .timeline-area h3 {
+            margin-bottom: 20px;
+            color: #333;
+            text-align: center;
+        }
+
+        .event-item {
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            cursor: move;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .event-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            border-color: #667eea;
+        }
+
+        .event-item.dragging {
+            opacity: 0.7;
+            transform: rotate(5deg);
+        }
+
+        .event-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        .event-date {
+            font-size: 0.9rem;
+            color: #666;
+            font-style: italic;
+        }
+
+        .timeline-slot {
+            background: #f0f0f0;
+            border: 2px dashed #ccc;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .timeline-slot::before {
+            content: attr(data-position);
+            position: absolute;
+            top: -10px;
+            left: 10px;
+            background: #667eea;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .timeline-slot.drag-over {
+            background: #e3f2fd;
+            border-color: #2196f3;
+            transform: scale(1.02);
+        }
+
+        .timeline-slot.correct {
+            background: #e8f5e8;
+            border-color: #4caf50;
+            border-style: solid;
+        }
+
+        .timeline-slot.incorrect {
+            background: #ffebee;
+            border-color: #f44336;
+            border-style: solid;
+        }
+
+        .timeline-slot .placeholder {
+            color: #999;
+            font-style: italic;
+        }
+
+        .result-message {
+            text-align: center;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 10px;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .result-message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .result-message.partial {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+
+        .result-message.failure {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        @media (max-width: 768px) {
+            .main-game {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .difficulty-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .game-content {
+                padding: 20px;
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        .back-btn {
+        display: inline-block;   /* so margin works properly */
+        width: 150px;
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        color: white;
+        text-align: center;      /* centers the text inside */
+        text-decoration: none;   /* remove underline */
+        border: none;
+        padding: 10px 20px;
+        border-radius: 12px;
+        font-size: 16px;
+        cursor: pointer;
+        margin: 40px 10px;       /* pushes it down 40px from top */
+    }
+
+    .back-btn:hover {
+        background: #e68900;
+}
+
+    </style>
+</head>
+<body>
+    <a href="game.html" class="back-btn">⬅ Back to Home</a>
+
+    <div class="container">
+        <div class="header">
+            <h1>🏛️ History Timeline Challenge</h1>
+            <p>Master the Timeline of Indian Independence & British Rule</p>
+        </div>
+        
+        <div class="game-content">
+            <div id="intro-screen" class="intro-screen">
+                <div class="intro-message pulse">
+                    Press Start to begin the challenge!
+                </div>
+                
+                <div class="difficulty-selector">
+                    <h3>Choose Your Difficulty:</h3>
+                    <div class="difficulty-buttons">
+                        <button class="difficulty-btn" data-difficulty="easy">
+                            Easy<br><small>3 Events</small>
+                        </button>
+                        <button class="difficulty-btn selected" data-difficulty="medium">
+                            Medium<br><small>4 Events</small>
+                        </button>
+                        <button class="difficulty-btn" data-difficulty="hard">
+                            Hard<br><small>6 Events</small>
+                        </button>
+                    </div>
+                </div>
+                
+                <button id="start-btn" class="start-btn">🚀 Start Challenge</button>
+            </div>
+            
+            <div id="game-area" class="game-area">
+                <div class="timer-section">
+                    <div class="timer-label">⏰ Time Left</div>
+                    <div class="timer-bar-container">
+                        <div id="timer-bar" class="timer-bar"></div>
+                    </div>
+                </div>
+                
+                <div class="game-controls">
+                    <button id="check-btn" class="check-btn">✅ Check Order</button>
+                    <button id="reset-btn" class="reset-btn">🔄 Reset</button>
+                    <button id="restart-btn" class="restart-btn">🏠 Restart</button>
+                </div>
+                
+                <div id="result-message" class="result-message" style="display: none;"></div>
+                
+                <div class="main-game">
+                    <div class="events-pool">
+                        <h3>📚 Historical Events</h3>
+                        <div id="events-container"></div>
+                    </div>
+                    
+                    <div class="timeline-area">
+                        <h3>📅 Timeline (Earliest to Latest)</h3>
+                        <div id="timeline-container"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Historical events pool focused on Indian Independence and British Rule
+        const historicalEvents = [
+            { name: "Battle of Plassey" , date:"guess" },
+            { name: "Regulating Act",  date:"guess" },
+            { name: "Charter Act", date: "guess" },
+            { name: "Indian Rebellion (Sepoy Mutiny)", date: "guess"},
+            { name: "Government of India Act", date: "guess", },
+            { name: "Indian Councils Act", date: "guess", },
+            { name: "Formation of Indian National Congress", date: "guess"},
+            { name: "Partition of Bengal", date: "guess" },
+            { name: "Jallianwala Bagh Massacre", date: "guess" },
+            { name: "Non-Cooperation Movement begins", date: "guess" },
+            { name: "Chauri Chaura incident", date: "guess" },
+            { name: "Simon Commission arrives", date: "guess" },
+            { name: "Lahore session of INC", date: "guess" },
+            { name: "Dandi Salt March", date: "guess" },
+            { name: "Civil Disobedience Movement", date: "guess"},
+            { name: "Government of India Act", date: "guess" },
+            { name: "Quit India Movement", date: "guess" },
+            { name: "Indian Independence Act", date: "guess" },
+            { name: "Partition of India", date: "guess"},
+            { name: "Assassination of Mahatma Gandhi", date: "guess" },
+            { name: "Constitution of India adopted", date: "guess" },
+            { name: "Formation of All India Muslim League", date: "guess"},
+            { name: "Lucknow Pact", date: "guess" }
+        ];
+
+        // Game state
+        let gameState = {
+            currentDifficulty: 'medium',
+            currentEvents: [],
+            timerInterval: null,
+            timeLeft: 60,
+            gameActive: false,
+            playerOrder: []
+        };
+
+        // DOM elements
+        const introScreen = document.getElementById('intro-screen');
+        const gameArea = document.getElementById('game-area');
+        const startBtn = document.getElementById('start-btn');
+        const restartBtn = document.getElementById('restart-btn');
+        const checkBtn = document.getElementById('check-btn');
+        const resetBtn = document.getElementById('reset-btn');
+        const timerBar = document.getElementById('timer-bar');
+        const eventsContainer = document.getElementById('events-container');
+        const timelineContainer = document.getElementById('timeline-container');
+        const resultMessage = document.getElementById('result-message');
+        const difficultyButtons = document.querySelectorAll('.difficulty-btn');
+
+        // Event listeners
+        startBtn.addEventListener('click', startGame);
+        restartBtn.addEventListener('click', restartGame);
+        checkBtn.addEventListener('click', checkOrder);
+        resetBtn.addEventListener('click', resetGame);
+
+        difficultyButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                difficultyButtons.forEach(b => b.classList.remove('selected'));
+                btn.classList.add('selected');
+                gameState.currentDifficulty = btn.dataset.difficulty;
+            });
+        });
+
+        function startGame() {
+            introScreen.style.display = 'none';
+            gameArea.style.display = 'block';
+            gameArea.classList.add('fade-in');
+            
+            initializeGame();
+        }
+
+        function restartGame() {
+            gameArea.style.display = 'none';
+            introScreen.style.display = 'block';
+            introScreen.classList.add('fade-in');
+            
+            clearInterval(gameState.timerInterval);
+            gameState.gameActive = false;
+            resultMessage.style.display = 'none';
+        }
+
+        function initializeGame() {
+            // Reset game state
+            gameState.timeLeft = 60;
+            gameState.gameActive = true;
+            gameState.playerOrder = [];
+            
+            // Get number of events based on difficulty
+            const eventCounts = { easy: 3, medium: 4, hard: 6 };
+            const eventCount = eventCounts[gameState.currentDifficulty];
+            
+            // Randomly select events
+            const shuffled = [...historicalEvents].sort(() => 0.5 - Math.random());
+            gameState.currentEvents = shuffled.slice(0, eventCount);
+            
+            // Sort events by year for correct order
+            gameState.currentEvents.sort((a, b) => a.year - b.year);
+            
+            setupGameBoard();
+            startTimer();
+            hideResultMessage();
+        }
+
+        function setupGameBoard() {
+            // Clear containers
+            eventsContainer.innerHTML = '';
+            timelineContainer.innerHTML = '';
+            
+            // Shuffle events for display
+            const shuffledEvents = [...gameState.currentEvents].sort(() => 0.5 - Math.random());
+            
+            // Create event items
+            shuffledEvents.forEach((event, index) => {
+                const eventElement = createEventElement(event, index);
+                eventsContainer.appendChild(eventElement);
+            });
+            
+            // Create timeline slots
+            for (let i = 0; i < gameState.currentEvents.length; i++) {
+                const slot = createTimelineSlot(i);
+                timelineContainer.appendChild(slot);
+            }
+        }
+
+        function createEventElement(event, index) {
+            const div = document.createElement('div');
+            div.className = 'event-item';
+            div.draggable = true;
+            div.dataset.eventId = index;
+            div.innerHTML = `
+                <div class="event-name">${event.name}</div>
+                <div class="event-date">${event.date}</div>
+            `;
+            
+            div.addEventListener('dragstart', handleDragStart);
+            div.addEventListener('dragend', handleDragEnd);
+            
+            return div;
+        }
+
+        function createTimelineSlot(position) {
+            const div = document.createElement('div');
+            div.className = 'timeline-slot';
+            div.dataset.position = `${position + 1}`;
+            div.innerHTML = '<div class="placeholder">Drop event here</div>';
+            
+            div.addEventListener('dragover', handleDragOver);
+            div.addEventListener('drop', handleDrop);
+            div.addEventListener('dragleave', handleDragLeave);
+            
+            return div;
+        }
+
+        function handleDragStart(e) {
+            if (!gameState.gameActive) return;
+            
+            e.dataTransfer.setData('text/plain', e.target.dataset.eventId);
+            e.target.classList.add('dragging');
+        }
+
+        function handleDragEnd(e) {
+            e.target.classList.remove('dragging');
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            e.currentTarget.classList.add('drag-over');
+        }
+
+        function handleDragLeave(e) {
+            e.currentTarget.classList.remove('drag-over');
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            e.currentTarget.classList.remove('drag-over');
+            
+            if (!gameState.gameActive) return;
+            
+            const eventId = e.dataTransfer.getData('text/plain');
+            const eventElement = document.querySelector(`[data-event-id="${eventId}"]`);
+            const slot = e.currentTarget;
+            
+            // Clear slot
+            slot.innerHTML = '';
+            
+            // Move event to slot
+            const eventCopy = eventElement.cloneNode(true);
+            eventCopy.draggable = false;
+            eventCopy.style.cursor = 'default';
+            slot.appendChild(eventCopy);
+            
+            // Remove original event
+            eventElement.remove();
+            
+            // Update player order
+            updatePlayerOrder();
+        }
+
+        function updatePlayerOrder() {
+            const slots = document.querySelectorAll('.timeline-slot');
+            gameState.playerOrder = [];
+            
+            slots.forEach((slot, index) => {
+                const eventElement = slot.querySelector('.event-item');
+                if (eventElement) {
+                    const eventId = parseInt(eventElement.dataset.eventId);
+                    const shuffledEvents = [...gameState.currentEvents].sort(() => 0.5 - Math.random());
+                    gameState.playerOrder[index] = shuffledEvents[eventId];
+                } else {
+                    gameState.playerOrder[index] = null;
+                }
+            });
+        }
+
+        function startTimer() {
+            timerBar.style.width = '100%';
+            timerBar.classList.remove('warning');
+            
+            gameState.timerInterval = setInterval(() => {
+                gameState.timeLeft--;
+                const percentage = (gameState.timeLeft / 60) * 100;
+                timerBar.style.width = percentage + '%';
+                
+                if (gameState.timeLeft <= 10) {
+                    timerBar.classList.add('warning');
+                }
+                
+                if (gameState.timeLeft <= 0) {
+                    clearInterval(gameState.timerInterval);
+                    gameState.gameActive = false;
+                    checkOrder();
+                }
+            }, 1000);
+        }
+
+        function checkOrder() {
+            if (!gameState.gameActive && gameState.timeLeft > 0) return;
+            
+            gameState.gameActive = false;
+            clearInterval(gameState.timerInterval);
+            
+            const slots = document.querySelectorAll('.timeline-slot');
+            let correctCount = 0;
+            let totalSlots = 0;
+            
+            slots.forEach((slot, index) => {
+                slot.classList.remove('correct', 'incorrect');
+                const eventElement = slot.querySelector('.event-item');
+                
+                if (eventElement) {
+                    totalSlots++;
+                    // Find the original event from the shuffled display order
+                    const eventName = eventElement.querySelector('.event-name').textContent;
+                    const originalEvent = gameState.currentEvents.find(e => e.name === eventName);
+                    const correctIndex = gameState.currentEvents.indexOf(originalEvent);
+                    
+                    if (correctIndex === index) {
+                        slot.classList.add('correct');
+                        correctCount++;
+                    } else {
+                        slot.classList.add('incorrect');
+                    }
+                }
+            });
+            
+            showResult(correctCount, totalSlots);
+        }
+
+        function showResult(correctCount, totalSlots) {
+            let message, className;
+            
+            if (correctCount === totalSlots && totalSlots === gameState.currentEvents.length) {
+                message = `🎉 Perfect! You got all ${correctCount} events in the correct order!`;
+                className = 'success';
+            } else if (correctCount >= totalSlots / 2) {
+                message = `👍 Good job! You got ${correctCount} out of ${totalSlots} events correct.`;
+                className = 'partial';
+            } else {
+                message = `😔 Try again! You got ${correctCount} out of ${totalSlots} events correct.`;
+                className = 'failure';
+            }
+            
+            resultMessage.textContent = message;
+            resultMessage.className = `result-message ${className}`;
+            resultMessage.style.display = 'block';
+            resultMessage.classList.add('fade-in');
+        }
+
+        function hideResultMessage() {
+            resultMessage.style.display = 'none';
+            resultMessage.classList.remove('fade-in');
+        }
+
+        function resetGame() {
+            clearInterval(gameState.timerInterval);
+            initializeGame();
+        }
+
+        // Initialize with medium difficulty selected
+        document.querySelector('[data-difficulty="medium"]').classList.add('selected');
+    </script>
+</body>
+</html>

@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Escape the Grammar Room</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Door Opening Animation */
+        .door-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 1000;
+            background: #2c3e50;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 1s ease-out;
+        }
+
+        .door-container.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .door {
+            position: relative;
+            width: 300px;
+            height: 400px;
+        }
+
+        .door-half {
+            position: absolute;
+            width: 50%;
+            height: 100%;
+            background: linear-gradient(45deg, #8B4513, #A0522D);
+            border: 5px solid #654321;
+            transition: transform 2s ease-in-out;
+        }
+
+        .door-left {
+            left: 0;
+            transform-origin: left center;
+            border-radius: 10px 0 0 10px;
+        }
+
+        .door-right {
+            right: 0;
+            transform-origin: right center;
+            border-radius: 0 10px 10px 0;
+        }
+
+        .door.opening .door-left {
+            transform: rotateY(-120deg);
+        }
+
+        .door.opening .door-right {
+            transform: rotateY(120deg);
+        }
+
+        .door-knob {
+            position: absolute;
+            width: 15px;
+            height: 15px;
+            background: #FFD700;
+            border-radius: 50%;
+            top: 50%;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .door-left .door-knob {
+            right: 10px;
+        }
+
+        .door-right .door-knob {
+            left: 10px;
+        }
+
+        .ghost {
+            position: absolute;
+            font-size: 40px;
+            animation: float 3s ease-in-out infinite;
+            opacity: 0;
+        }
+
+        .ghost.entering {
+            animation: ghostEnter 3s ease-in-out forwards;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+
+        @keyframes ghostEnter {
+            0% { 
+                opacity: 0; 
+                transform: translateX(-200px) scale(0.5);
+            }
+            50% {
+                opacity: 1;
+                transform: translateX(0) scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: translateX(200px) scale(0.8);
+            }
+        }
+
+        /* Main Game Interface */
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .title {
+            font-size: 3em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 10px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ff6b6b, #4ecdc4);
+            width: 0%;
+            transition: width 0.5s ease;
+            border-radius: 10px;
+        }
+
+        .puzzle-container {
+            background: rgba(255,255,255,0.95);
+            border-radius: 20px;
+            padding: 30px;
+            margin: 20px 0;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transform: translateY(50px);
+            opacity: 0;
+            animation: slideIn 0.8s ease-out forwards;
+        }
+
+        @keyframes slideIn {
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .puzzle-title {
+            font-size: 1.8em;
+            color: #333;
+            margin-bottom: 20px;
+            text-align: center;
+            position: relative;
+        }
+
+        .puzzle-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 3px;
+            background: linear-gradient(90deg, #ff6b6b, #4ecdc4);
+            border-radius: 2px;
+        }
+
+        .word-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin: 20px 0;
+            min-height: 60px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border: 2px dashed #ddd;
+        }
+
+        .word {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 25px;
+            cursor: pointer;
+            user-select: none;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        .word:hover {
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+        }
+
+        .word.selected {
+            background: linear-gradient(45deg, #ff6b6b, #ff8e8e);
+            transform: scale(0.95);
+        }
+
+        .answer-area {
+            min-height: 80px;
+            background: #e8f5e8;
+            border: 3px solid #4ecdc4;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn {
+            background: linear-gradient(45deg, #4ecdc4, #44a08d);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+        }
+
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .feedback {
+            text-align: center;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .feedback.correct {
+            background: #d4edda;
+            color: #155724;
+            border: 2px solid #c3e6cb;
+        }
+
+        .feedback.incorrect {
+            background: #f8d7da;
+            color: #721c24;
+            border: 2px solid #f5c6cb;
+        }
+
+        .completion-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            z-index: 1000;
+        }
+
+        .completion-content {
+            text-align: center;
+            color: white;
+            background: rgba(255,255,255,0.1);
+            padding: 50px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .completion-title {
+            font-size: 3em;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .dancing-ghosts {
+            font-size: 60px;
+            margin: 20px 0;
+            animation: dance 1s ease-in-out infinite alternate;
+        }
+
+        @keyframes dance {
+            0% { transform: rotate(-10deg) scale(1); }
+            100% { transform: rotate(10deg) scale(1.1); }
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        @media (max-width: 768px) {
+            .title {
+                font-size: 2em;
+            }
+            
+            .puzzle-container {
+                padding: 20px;
+                margin: 10px;
+            }
+            
+            .word {
+                padding: 8px 12px;
+                font-size: 14px;
+            }
+        }
+         .back-btn {
+        display: inline-block;   /* so margin works properly */
+        width: 150px;
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        color: white;
+        text-align: center;      /* centers the text inside */
+        text-decoration: none;   /* remove underline */
+        border: none;
+        padding: 10px 20px;
+        border-radius: 12px;
+        font-size: 16px;
+        cursor: pointer;
+        margin: 40px 10px;       /* pushes it down 40px from top */
+    }
+
+    .back-btn:hover {
+        background: #e68900;
+}
+
+    </style>
+</head>
+<body>
+     <a href="game.html" class="back-btn">⬅ Back to Home</a>
+    <!-- Door Opening Animation -->
+    <div class="door-container" id="doorContainer">
+        <div class="door" id="door">
+            <div class="door-half door-left">
+                <div class="door-knob"></div>
+            </div>
+            <div class="door-half door-right">
+                <div class="door-knob"></div>
+            </div>
+        </div>
+        <div class="ghost" id="ghost1" style="top: 30%; left: 20%;">👻</div>
+        <div class="ghost" id="ghost2" style="top: 50%; left: 30%;">👻</div>
+        <div class="ghost" id="ghost3" style="top: 40%; left: 40%;">👻</div>
+        <div class="ghost" id="ghost4" style="top: 60%; left: 25%;">👻</div>
+    </div>
+
+    <!-- Main Game -->
+    <div class="container">
+        <div class="header">
+            <h1 class="title">Escape the Grammar Room</h1>
+            <p class="subtitle">Solve puzzles to unlock your freedom!</p>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+        </div>
+
+        <!-- Puzzle 1: Scrambled Sentence -->
+        <div class="puzzle-container" id="puzzle1">
+            <h2 class="puzzle-title">Puzzle 1: Unscramble the Sentence</h2>
+            <p style="text-align: center; color: #666; margin-bottom: 20px;">
+                Arrange the words to form a correct sentence:
+            </p>
+            <div class="word-container" id="wordBank1">
+                <div class="word" onclick="selectWord(this, 1)">quickly</div>
+                <div class="word" onclick="selectWord(this, 1)">The</div>
+                <div class="word" onclick="selectWord(this, 1)">brown</div>
+                <div class="word" onclick="selectWord(this, 1)">fox</div>
+                <div class="word" onclick="selectWord(this, 1)">jumped</div>
+                <div class="word" onclick="selectWord(this, 1)">over</div>
+                <div class="word" onclick="selectWord(this, 1)">the</div>
+                <div class="word" onclick="selectWord(this, 1)">fence</div>
+            </div>
+            <div class="answer-area" id="answerArea1"></div>
+            <button class="btn" onclick="checkAnswer(1)">Check Answer</button>
+            <button class="btn" onclick="clearAnswer(1)" style="background: linear-gradient(45deg, #ff6b6b, #ff8e8e); margin-left: 10px;">Clear</button>
+            <div class="feedback" id="feedback1"></div>
+        </div>
+
+        <!-- Puzzle 2: Grammar Correction -->
+        <div class="puzzle-container hidden" id="puzzle2">
+            <h2 class="puzzle-title">Puzzle 2: Fix the Grammar Errors</h2>
+            <p style="text-align: center; color: #666; margin-bottom: 20px;">
+                Choose the correct words to fix this sentence:
+            </p>
+            <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; margin: 20px 0; text-align: center; font-size: 18px; border: 2px solid #ddd;">
+                "She <span style="color: red;">don't</span> like <span style="color: red;">them</span> apples because <span style="color: red;">there</span> too sour."
+            </div>
+            <div class="word-container" id="wordBank2">
+                <div class="word" onclick="selectWord(this, 2)">doesn't</div>
+                <div class="word" onclick="selectWord(this, 2)">don't</div>
+                <div class="word" onclick="selectWord(this, 2)">those</div>
+                <div class="word" onclick="selectWord(this, 2)">them</div>
+                <div class="word" onclick="selectWord(this, 2)">they're</div>
+                <div class="word" onclick="selectWord(this, 2)">there</div>
+            </div>
+            <div class="answer-area" id="answerArea2"></div>
+            <button class="btn" onclick="checkAnswer(2)">Check Answer</button>
+            <button class="btn" onclick="clearAnswer(2)" style="background: linear-gradient(45deg, #ff6b6b, #ff8e8e); margin-left: 10px;">Clear</button>
+            <div class="feedback" id="feedback2"></div>
+        </div>
+
+        <!-- Puzzle 3: Verb Tense Riddle -->
+        <div class="puzzle-container hidden" id="puzzle3">
+            <h2 class="puzzle-title">Puzzle 3: Verb Tense Riddle</h2>
+            <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; margin: 20px 0; text-align: center; font-size: 18px; border: 2px solid #ddd;">
+                <p><strong>Riddle:</strong> I am an action that happened before another past action. I use "had" plus a past participle. What tense am I?</p>
+            </div>
+            <div class="word-container" id="wordBank3">
+                <div class="word" onclick="selectWord(this, 3)">Past Perfect</div>
+                <div class="word" onclick="selectWord(this, 3)">Present Perfect</div>
+                <div class="word" onclick="selectWord(this, 3)">Future Perfect</div>
+                <div class="word" onclick="selectWord(this, 3)">Simple Past</div>
+            </div>
+            <div class="answer-area" id="answerArea3"></div>
+            <button class="btn" onclick="checkAnswer(3)">Check Answer</button>
+            <button class="btn" onclick="clearAnswer(3)" style="background: linear-gradient(45deg, #ff6b6b, #ff8e8e); margin-left: 10px;">Clear</button>
+            <div class="feedback" id="feedback3"></div>
+        </div>
+    </div>
+
+    <!-- Completion Screen -->
+    <div class="completion-screen" id="completionScreen">
+        <div class="completion-content">
+            <h1 class="completion-title">CONGRATULATIONS!</h1>
+            <p style="font-size: 1.5em; margin: 20px 0;">You've successfully escaped the Grammar Room!</p>
+            <div class="dancing-ghosts">
+                👻 🎊 👻 🎊 👻
+            </div>
+            <p style="font-size: 1.2em; opacity: 0.9;">You're a Grammar Master!</p>
+            <button class="btn" onclick="restartGame()" style="margin-top: 30px; font-size: 18px; padding: 15px 40px;">Play Again</button>
+        </div>
+    </div>
+
+    <script>
+        let currentPuzzle = 1;
+        let selectedWords = [[], [], [], []]; // For each puzzle
+        let correctAnswers = [
+            ["The", "brown", "fox", "jumped", "quickly", "over", "the", "fence"],
+            ["doesn't", "those", "they're"],
+            ["Past Perfect"]
+        ];
+
+        // Door opening animation
+        window.addEventListener('load', function() {
+            setTimeout(() => {
+                document.getElementById('door').classList.add('opening');
+                
+                // Animate ghosts entering
+                setTimeout(() => {
+                    const ghosts = document.querySelectorAll('.ghost');
+                    ghosts.forEach((ghost, index) => {
+                        setTimeout(() => {
+                            ghost.classList.add('entering');
+                        }, index * 500);
+                    });
+                }, 1000);
+
+                // Hide door container
+                setTimeout(() => {
+                    document.getElementById('doorContainer').classList.add('hidden');
+                }, 4000);
+            }, 500);
+        });
+
+        function selectWord(element, puzzleNum) {
+            const word = element.textContent;
+            const answerArea = document.getElementById(`answerArea${puzzleNum}`);
+            
+            // Create answer word
+            const answerWord = element.cloneNode(true);
+            answerWord.onclick = () => removeWord(answerWord, puzzleNum);
+            answerWord.classList.add('selected');
+            answerWord.style.cursor = 'pointer';
+            answerWord.title = 'Click to remove';
+            
+            // Add to answer area
+            answerArea.appendChild(answerWord);
+            selectedWords[puzzleNum].push(word);
+            
+            // Hide original word
+            element.style.display = 'none';
+        }
+
+        function removeWord(element, puzzleNum) {
+            const word = element.textContent;
+            const wordBank = document.getElementById(`wordBank${puzzleNum}`);
+            
+            // Show original word back
+            const originalWords = wordBank.querySelectorAll('.word');
+            originalWords.forEach(w => {
+                if (w.textContent === word && w.style.display === 'none') {
+                    w.style.display = 'inline-block';
+                    return;
+                }
+            });
+            
+            // Remove from selected words
+            const index = selectedWords[puzzleNum].indexOf(word);
+            if (index > -1) {
+                selectedWords[puzzleNum].splice(index, 1);
+            }
+            
+            // Remove from answer area
+            element.remove();
+        }
+
+        function clearAnswer(puzzleNum) {
+            const answerArea = document.getElementById(`answerArea${puzzleNum}`);
+            const wordBank = document.getElementById(`wordBank${puzzleNum}`);
+            
+            // Show all words back
+            const allWords = wordBank.querySelectorAll('.word');
+            allWords.forEach(word => {
+                word.style.display = 'inline-block';
+            });
+            
+            // Clear answer area
+            answerArea.innerHTML = '';
+            selectedWords[puzzleNum] = [];
+            
+            // Clear feedback
+            document.getElementById(`feedback${puzzleNum}`).innerHTML = '';
+        }
+
+        function checkAnswer(puzzleNum) {
+            const feedback = document.getElementById(`feedback${puzzleNum}`);
+            const selected = selectedWords[puzzleNum];
+            const correct = correctAnswers[puzzleNum - 1];
+            
+            let isCorrect = false;
+            
+            if (puzzleNum === 1) {
+                // Check sentence order
+                isCorrect = JSON.stringify(selected) === JSON.stringify(correct);
+            } else if (puzzleNum === 2) {
+                // Check if selected words match the corrections needed
+                isCorrect = selected.includes("doesn't") && 
+                           selected.includes("those") && 
+                           selected.includes("they're") &&
+                           selected.length === 3;
+            } else if (puzzleNum === 3) {
+                // Check verb tense
+                isCorrect = selected.includes("Past Perfect") && selected.length === 1;
+            }
+            
+            if (isCorrect) {
+                feedback.innerHTML = 'Correct! Well done!';
+                feedback.className = 'feedback correct';
+                
+                setTimeout(() => {
+                    if (puzzleNum < 3) {
+                        // Move to next puzzle
+                        document.getElementById(`puzzle${puzzleNum}`).classList.add('hidden');
+                        document.getElementById(`puzzle${puzzleNum + 1}`).classList.remove('hidden');
+                        currentPuzzle++;
+                        updateProgress();
+                    } else {
+                        // Game complete
+                        showCompletion();
+                    }
+                }, 1500);
+            } else {
+                feedback.innerHTML = 'Not quite right. Try again!';
+                feedback.className = 'feedback incorrect';
+                
+                // Shake animation for incorrect answer
+                const container = document.getElementById(`puzzle${puzzleNum}`);
+                container.style.animation = 'shake 0.5s ease-in-out';
+                setTimeout(() => {
+                    container.style.animation = '';
+                }, 500);
+            }
+        }
+
+        function updateProgress() {
+            const progress = (currentPuzzle - 1) * 33.33;
+            document.getElementById('progressFill').style.width = progress + '%';
+        }
+
+        function showCompletion() {
+            document.getElementById('progressFill').style.width = '100%';
+            setTimeout(() => {
+                document.getElementById('completionScreen').style.display = 'flex';
+            }, 1000);
+        }
+
+        function restartGame() {
+            currentPuzzle = 1;
+            selectedWords = [[], [], [], []];
+            
+            // Reset all puzzles
+            document.getElementById('puzzle1').classList.remove('hidden');
+            document.getElementById('puzzle2').classList.add('hidden');
+            document.getElementById('puzzle3').classList.add('hidden');
+            document.getElementById('completionScreen').style.display = 'none';
+            
+            // Clear all answers
+            for (let i = 1; i <= 3; i++) {
+                clearAnswer(i);
+            }
+            
+            updateProgress();
+        }
+
+        // Add shake animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes shake {
+                0%, 100% { transform: translateX(0); }
+                25% { transform: translateX(-5px); }
+                75% { transform: translateX(5px); }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Initialize progress
+        updateProgress();
+    </script>
+</body>
+</html>

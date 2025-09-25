@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Escape the Grammar Room</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 50%;
+            animation: twinkle 2s infinite alternate;
+        }
+
+        @keyframes twinkle {
+            0% { opacity: 0.3; }
+            100% { opacity: 1; }
+        }
+
+        .container {
+            position: relative;
+            z-index: 10;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .game-header {
+            text-align: center;
+            margin-bottom: 40px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .game-title {
+            font-size: 3.5rem;
+            color: #fff;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .puzzle-icon {
+            font-size: 3rem;
+            color: #4ade80;
+            filter: drop-shadow(0 0 10px rgba(74, 222, 128, 0.5));
+        }
+
+        .game-subtitle {
+            font-size: 1.3rem;
+            color: #e2e8f0;
+            margin-bottom: 20px;
+        }
+
+        .timer {
+            font-size: 1.5rem;
+            color: #fbbf24;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+        }
+
+        .game-board {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .puzzle-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+            transform: translateY(0);
+        }
+
+        .puzzle-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+            border-color: #4ade80;
+        }
+
+        .puzzle-card.completed {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            border-color: #10b981;
+        }
+
+        .puzzle-card.completed .puzzle-title {
+            color: white;
+        }
+
+        .puzzle-title {
+            font-size: 1.5rem;
+            color: #1e293b;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .door-icon {
+            font-size: 1.5rem;
+            color: #ef4444;
+            transition: all 0.3s ease;
+        }
+
+        .puzzle-card.completed .door-icon {
+            color: #4ade80;
+            transform: rotate(90deg);
+        }
+
+        .puzzle-content {
+            margin-bottom: 20px;
+        }
+
+        .scrambled-sentence {
+            background: #f1f5f9;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            font-weight: bold;
+            color: #475569;
+            border-left: 4px solid #3b82f6;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #cbd5e1;
+            border-radius: 10px;
+            font-size: 1rem;
+            margin-bottom: 15px;
+            transition: border-color 0.3s ease;
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .feedback {
+            margin-top: 15px;
+            padding: 12px;
+            border-radius: 10px;
+            font-weight: bold;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .feedback.correct {
+            background: #dcfce7;
+            color: #166534;
+            border: 1px solid #bbf7d0;
+        }
+
+        .feedback.incorrect {
+            background: #fef2f2;
+            color: #dc2626;
+            border: 1px solid #fecaca;
+        }
+
+        .victory-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .victory-modal.show {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .victory-content {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            padding: 50px;
+            border-radius: 25px;
+            text-align: center;
+            max-width: 500px;
+            transform: scale(0.8);
+            transition: transform 0.3s ease;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+        }
+
+        .victory-modal.show .victory-content {
+            transform: scale(1);
+        }
+
+        .victory-title {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .hint-btn {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            margin-left: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .hint-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+        }
+
+        .hint {
+            background: #fef3c7;
+            color: #92400e;
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 10px;
+            border-left: 4px solid #f59e0b;
+            font-size: 0.9rem;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 20px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4ade80 0%, #22c55e 100%);
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+
+        @media (max-width: 768px) {
+            .game-title {
+                font-size: 2.5rem;
+            }
+            
+            .game-board {
+                grid-template-columns: 1fr;
+            }
+            
+            .container {
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="stars"></div>
+    
+    <div class="container">
+        <div class="game-header">
+            <h1 class="game-title">
+                <span class="puzzle-icon">🧩</span>
+                Escape the Grammar Room
+            </h1>
+            <p class="game-subtitle">Solve all puzzles to unlock your freedom!</p>
+            <div class="timer" id="timer">Time: 00:00</div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressBar"></div>
+            </div>
+        </div>
+
+        <div class="game-board">
+            <!-- Puzzle 1: Scrambled Sentence -->
+            <div class="puzzle-card" id="puzzle1">
+                <h3 class="puzzle-title">
+                    <span class="door-icon">🚪</span>
+                    Door 1: Unscramble the Sentence
+                </h3>
+                <div class="puzzle-content">
+                    <div class="scrambled-sentence">
+                        quickly the cat brown jumped over fence the
+                    </div>
+                    <input type="text" class="input-field" id="answer1" placeholder="Rearrange the words to form a correct sentence...">
+                    <button class="btn" onclick="checkAnswer(1)">Submit Answer</button>
+                    <button class="hint-btn" onclick="showHint(1)">💡 Hint</button>
+                    <div class="feedback" id="feedback1"></div>
+                    <div class="hint" id="hint1" style="display: none;">
+                        Think about the logical order: What jumped? How did it jump? What did it jump over?
+                    </div>
+                </div>
+            </div>
+
+            <!-- Puzzle 2: Grammar Correction -->
+            <div class="puzzle-card" id="puzzle2">
+                <h3 class="puzzle-title">
+                    <span class="door-icon">🚪</span>
+                    Door 2: Fix the Errors
+                </h3>
+                <div class="puzzle-content">
+                    <div class="scrambled-sentence">
+                        me and my friend is going to the store yesterday and we buyed some apples
+                    </div>
+                    <input type="text" class="input-field" id="answer2" placeholder="Correct all the grammar mistakes...">
+                    <button class="btn" onclick="checkAnswer(2)">Submit Answer</button>
+                    <button class="hint-btn" onclick="showHint(2)">💡 Hint</button>
+                    <div class="feedback" id="feedback2"></div>
+                    <div class="hint" id="hint2" style="display: none;">
+                        Look for: subject-verb agreement, pronoun order, verb tense consistency, and irregular past tense.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Puzzle 3: Verb Tense Riddle -->
+            <div class="puzzle-card" id="puzzle3">
+                <h3 class="puzzle-title">
+                    <span class="door-icon">🚪</span>
+                    Door 3: The Tense Riddle
+                </h3>
+                <div class="puzzle-content">
+                    <div class="scrambled-sentence">
+                        I am something that happened before now, but I'm not the simple past. I need a helper verb and show that an action was completed before another past action. What am I?
+                    </div>
+                    <input type="text" class="input-field" id="answer3" placeholder="Enter the verb tense name...">
+                    <button class="btn" onclick="checkAnswer(3)">Submit Answer</button>
+                    <button class="hint-btn" onclick="showHint(3)">💡 Hint</button>
+                    <div class="feedback" id="feedback3"></div>
+                    <div class="hint" id="hint3" style="display: none;">
+                        This tense uses "had" + past participle. Example: "I had eaten before you arrived."
+                    </div>
+                </div>
+            </div>
+
+            <!-- Puzzle 4: Punctuation Challenge -->
+            <div class="puzzle-card" id="puzzle4">
+                <h3 class="puzzle-title">
+                    <span class="door-icon">🚪</span>
+                    Door 4: Punctuation Puzzle
+                </h3>
+                <div class="puzzle-content">
+                    <div class="scrambled-sentence">
+                        wow sarah exclaimed this is amazing i cant believe we won the contest
+                    </div>
+                    <input type="text" class="input-field" id="answer4" placeholder="Add proper punctuation and capitalization...">
+                    <button class="btn" onclick="checkAnswer(4)">Submit Answer</button>
+                    <button class="hint-btn" onclick="showHint(4)">💡 Hint</button>
+                    <div class="feedback" id="feedback4"></div>
+                    <div class="hint" id="hint4" style="display: none;">
+                        Look for: exclamations, quotation marks, apostrophes for contractions, and proper capitalization.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="victory-modal" id="victoryModal">
+        <div class="victory-content">
+            <h2 class="victory-title">🎉 ESCAPE SUCCESSFUL! 🎉</h2>
+            <p>Congratulations! You've solved all the grammar puzzles and escaped the room!</p>
+            <p>Your grammar skills are excellent!</p>
+            <button class="btn" onclick="resetGame()">Play Again</button>
+        </div>
+    </div>
+
+    <script>
+        let startTime = Date.now();
+        let completedPuzzles = 0;
+        let totalPuzzles = 4;
+        let gameCompleted = false;
+
+        const answers = {
+            1: "the brown cat jumped quickly over the fence",
+            2: "my friend and i went to the store yesterday and we bought some apples",
+            3: "past perfect",
+            4: "wow sarah exclaimed this is amazing i cant believe we won the contest"
+        };
+
+        const correctAnswers = {
+            1: ["the brown cat jumped quickly over the fence", "the brown cat quickly jumped over the fence"],
+            2: ["my friend and i went to the store yesterday and we bought some apples", "my friend and i went to the store yesterday and bought some apples"],
+            3: ["past perfect", "past perfect tense"],
+            4: ["wow sarah exclaimed this is amazing i cant believe we won the contest", "wow sarah exclaimed this is amazing i can't believe we won the contest"]
+        };
+
+        function createStars() {
+            const starsContainer = document.querySelector('.stars');
+            for (let i = 0; i < 100; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.animationDelay = Math.random() * 2 + 's';
+                starsContainer.appendChild(star);
+            }
+        }
+
+        function updateTimer() {
+            const elapsed = Math.floor((Date.now() - startTime) / 1000);
+            const minutes = Math.floor(elapsed / 60).toString().padStart(2, '0');
+            const seconds = (elapsed % 60).toString().padStart(2, '0');
+            document.getElementById('timer').textContent = `Time: ${minutes}:${seconds}`;
+        }
+
+        function updateProgress() {
+            const progress = (completedPuzzles / totalPuzzles) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+        }
+
+        function normalize(str) {
+            return str.toLowerCase().trim().replace(/[^\w\s]/g, '').replace(/\s+/g, ' ');
+        }
+
+        function checkAnswer(puzzleNum) {
+            if (gameCompleted) return;
+            
+            const userAnswer = document.getElementById(`answer${puzzleNum}`).value;
+            const feedbackElement = document.getElementById(`feedback${puzzleNum}`);
+            const puzzleCard = document.getElementById(`puzzle${puzzleNum}`);
+            
+            if (!userAnswer.trim()) {
+                feedbackElement.textContent = "Please enter an answer!";
+                feedbackElement.className = "feedback incorrect";
+                return;
+            }
+
+            const normalizedAnswer = normalize(userAnswer);
+            const isCorrect = correctAnswers[puzzleNum].some(answer => 
+                normalize(answer) === normalizedAnswer
+            );
+
+            if (isCorrect) {
+                feedbackElement.textContent = "🎉 Correct! Door unlocked!";
+                feedbackElement.className = "feedback correct";
+                puzzleCard.classList.add('completed');
+                document.getElementById(`answer${puzzleNum}`).disabled = true;
+                
+                if (!puzzleCard.dataset.completed) {
+                    completedPuzzles++;
+                    puzzleCard.dataset.completed = 'true';
+                    updateProgress();
+                }
+
+                if (completedPuzzles === totalPuzzles) {
+                    setTimeout(showVictory, 1000);
+                }
+            } else {
+                feedbackElement.textContent = "❌ Not quite right. Try again!";
+                feedbackElement.className = "feedback incorrect";
+            }
+        }
+
+        function showHint(puzzleNum) {
+            const hint = document.getElementById(`hint${puzzleNum}`);
+            hint.style.display = hint.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function showVictory() {
+            gameCompleted = true;
+            document.getElementById('victoryModal').classList.add('show');
+        }
+
+        function resetGame() {
+            gameCompleted = false;
+            completedPuzzles = 0;
+            startTime = Date.now();
+            
+            // Clear floating emojis
+            document.getElementById('floatingElements').innerHTML = '';
+            
+            // Reset all puzzle cards
+            for (let i = 1; i <= totalPuzzles; i++) {
+                const puzzleCard = document.getElementById(`puzzle${i}`);
+                const answerField = document.getElementById(`answer${i}`);
+                const feedback = document.getElementById(`feedback${i}`);
+                const hint = document.getElementById(`hint${i}`);
+                
+                puzzleCard.classList.remove('completed');
+                puzzleCard.removeAttribute('data-completed');
+                answerField.value = '';
+                answerField.disabled = false;
+                feedback.textContent = '';
+                feedback.className = 'feedback';
+                hint.style.display = 'none';
+            }
+            
+            updateProgress();
+            document.getElementById('victoryModal').classList.remove('show');
+        }
+
+        // Initialize the game
+        createStars();
+        setInterval(updateTimer, 1000);
+        updateProgress();
+
+        // Add enter key support
+        document.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                const activeElement = document.activeElement;
+                if (activeElement.classList.contains('input-field')) {
+                    const puzzleNum = activeElement.id.replace('answer', '');
+                    checkAnswer(parseInt(puzzleNum));
+                }
+            }
+        });
+    </script>
+</body>
+</html>

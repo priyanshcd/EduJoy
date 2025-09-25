@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cell Quest — Plant & Animal Cells</title>
+    <style>
+        :root {
+            --font-primary: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            --surface-color: #ffffff;
+            --text-color: #333d49;
+            --text-color-light: #6b7280;
+            --primary-text: #ffffff;
+            --accent-color-correct: #10b981;
+            --accent-color-close: #f59e0b;
+            --border-color: #e5e7eb;
+            --font-size-base: 16px;
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { font-size: var(--font-size-base); }
+        body {
+            font-family: var(--font-primary);
+            background: linear-gradient(135deg, #6d28d9, #4f46e5, #2563eb);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 1rem;
+        }
+
+        .game-container {
+            width: 100%;
+            max-width: 800px;
+            background-color: var(--surface-color);
+            border-radius: 24px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            padding: 2.5rem;
+            transition: all 0.3s ease-in-out;
+        }
+
+        .screen { display: none; }
+        .screen.active { display: block; }
+
+        /* New Start Screen Styles */
+        #start-screen { text-align: center; }
+        #start-screen h1 {
+            font-size: 2.25rem;
+            font-weight: 700;
+            color: #4f46e5;
+            margin-bottom: 1rem;
+        }
+        #start-screen p {
+            font-size: 1rem;
+            color: var(--text-color-light);
+            margin-bottom: 2.5rem;
+            line-height: 1.5;
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .mode-selection { display: flex; justify-content: center; gap: 1rem; }
+        .mode-btn {
+            border: none;
+            border-radius: 9999px;
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #fff;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .mode-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        .mode-btn .count {
+            background-color: rgba(0,0,0,0.15);
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            padding: 0.125rem 0.5rem;
+        }
+        #btn-plant { background-color: #22c55e; }
+        #btn-animal { background-color: #f97316; }
+        #btn-mixed { background-color: #ef4444; }
+
+        /* Game Screen */
+        .game-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+        #score-display { font-weight: bold; font-size: 1.1rem; padding: 0.5rem 1rem; background-color: #f3f4f6; border-radius: 8px; }
+        #progress-bar-container { width: 100%; height: 12px; background-color: var(--border-color); border-radius: 6px; overflow: hidden; margin-bottom: 1.5rem; }
+        #progress-bar { width: 0%; height: 100%; background-color: #3b82f6; transition: width 0.5s ease-out; }
+        #part-svg-container { width: 150px; height: 150px; margin: 0 auto 1.5rem auto; display: flex; justify-content: center; align-items: center; }
+        #prompt { font-size: 1.25rem; text-align: center; margin-bottom: 1.5rem; min-height: 50px; }
+        #answer-form { display: flex; gap: 0.5rem; }
+        .text-input { flex-grow: 1; padding: 0.75rem; border: 2px solid var(--border-color); border-radius: 8px; font-size: 1.1rem; color: var(--text-color); }
+        .text-input:focus { outline: none; border-color: #3b82f6; }
+        .submit-btn { border: none; border-radius: 8px; background-color: #3b82f6; color: white; padding: 0.75rem 1.5rem; font-size: 1.1rem; font-weight: bold; cursor: pointer; }
+
+        /* Final Screen with Diagram */
+        #final-screen h2 { text-align: center; font-size: 1.75rem; margin-bottom: 1rem; color: #111827; }
+        .final-layout { display: flex; gap: 1.5rem; align-items: flex-start; }
+        .final-cell-wrapper { flex: 1; min-width: 0; }
+        .final-cell-wrapper h3 { text-align: center; margin-bottom: 0.5rem; font-size: 1.2rem; }
+        .final-cell-container { border: 2px solid var(--border-color); border-radius: 12px; background-color: #f9fafb; }
+        .hotspot { fill: #3b82f6; r: 4; opacity: 0.5; cursor: pointer; transition: r 0.2s, opacity 0.2s; }
+        .hotspot:hover { r: 7; opacity: 1; }
+        .legend { background-color: #f9fafb; border-radius: 8px; padding: 1rem; }
+        .legend ul { list-style: none; }
+        .legend li { padding: 0.5rem; border-radius: 4px; transition: background-color 0.2s; cursor: default; font-size: 0.9rem; }
+        .legend li.highlighted { background-color: #3b82f6; color: white; }
+        .final-actions { display: flex; flex-direction: column; gap: 1rem; margin-top: 1.5rem; }
+        .btn-play-again { background-color: #3b82f6; color: white; border: none; border-radius: 8px; padding: 0.75rem 1.5rem; font-size: 1rem; font-weight: bold; cursor: pointer; }
+        .btn-switch-mode { background-color: #e5e7eb; color: #374151; border: none; border-radius: 8px; padding: 0.75rem 1.5rem; font-size: 1rem; font-weight: bold; cursor: pointer; }
+        
+        #feedback-area { min-height: 2rem; margin-top: 1rem; font-size: 1.1rem; font-weight: bold; text-align: center; }
+        .feedback-correct { color: var(--accent-color-correct); }
+        .feedback-close { color: var(--accent-color-close); }
+        .feedback-reveal { color: var(--text-color); }
+        .tick-container { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 100px; height: 100px; pointer-events: none; opacity: 0; }
+        .tick-container.animate { animation: fadeInOut 1.5s ease-in-out forwards; }
+        .tick-circle { stroke-dasharray: 283; stroke-dashoffset: 283; stroke: var(--accent-color-correct); stroke-width: 4; fill: none; }
+        .tick-check { stroke-dasharray: 48; stroke-dashoffset: 48; stroke: var(--accent-color-correct); stroke-width: 4; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+        @keyframes draw { to { stroke-dashoffset: 0; } }
+        @keyframes fadeInOut { 0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); } 20% { opacity: 1; transform: translate(-50%, -50%) scale(1); } 80% { opacity: 1; transform: translate(-50%, -50%) scale(1); } 100% { opacity: 0; transform: translate(-50%, -50%) scale(1.2); } }
+        
+        #tooltip { position: fixed; background-color: var(--surface-color); color: var(--text-color); border: 1px solid var(--border-color); border-radius: 8px; padding: 0.75rem; box-shadow: 0 2px 6px rgba(0,0,0,0.1); pointer-events: none; opacity: 0; transition: opacity 0.2s; z-index: 200; max-width: 250px; }
+        #tooltip.visible { opacity: 1; }
+        #tooltip strong { display: block; margin-bottom: 0.25rem; color: #3b82f6; }
+
+        .back-btn {
+            position: absolute;
+            top: 1.5rem;
+            left: 1.5rem;
+            background: linear-gradient(135deg,#f093fb 0%,#f5576c 100%);
+            color: white;
+            text-decoration: none;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            z-index: 10;
+        }
+
+        @media (max-width: 768px) {
+            .game-container { max-width: 100%; padding: 1.5rem; }
+            .final-layout { flex-direction: column; }
+        }
+        @media (max-width: 540px) {
+            .mode-selection { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+    <a href="game.html" class="back-btn">⬅ Back to Home</a>
+
+    <div class="game-container">
+        <div id="start-screen" class="screen active">
+            <h1>Cell Quest</h1>
+            <p>"Step into the microscopic world where every picture holds a clue! 🔬 From the powerhouse of the cell to the green makers of food, prove your biology smarts."</p>
+            <div class="mode-selection">
+                <button id="btn-plant" class="mode-btn" data-mode="plant">Plant<span class="count"></span></button>
+                <button id="btn-animal" class="mode-btn" data-mode="animal">Animal<span class="count"></span></button>
+                <button id="btn-mixed" class="mode-btn" data-mode="mixed">Mixed<span class="count"></span></button>
+            </div>
+        </div>
+
+        <div id="game-screen" class="screen">
+             <div class="game-header">
+                <span id="current-mode-display"></span>
+                <span id="score-display">Score: 0</span>
+            </div>
+            <div id="progress-bar-container"><div id="progress-bar"></div></div>
+            <div id="part-svg-container"></div>
+            <p id="prompt"></p>
+            <form id="answer-form">
+                <input type="text" id="answer-input" class="text-input" placeholder="Type your answer..." aria-label="Your answer" autocomplete="off">
+                <button type="submit" class="submit-btn">Submit</button>
+            </form>
+            <div id="feedback-area"></div>
+        </div>
+
+        <div id="final-screen" class="screen">
+            <h2 id="final-title"></h2>
+            <div class="final-layout" id="final-layout-container">
+                </div>
+            <div class="final-actions">
+                <button id="play-again-btn" class="btn-play-again">Play Again</button>
+                <button id="switch-mode-btn" class="btn-switch-mode">Switch Mode</button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="tooltip"></div>
+    <div class="tick-container" id="tick-animation">
+        <svg viewBox="0 0 100 100">
+            <circle class="tick-circle" cx="50" cy="50" r="45"/><path class="tick-check" d="M30 50 L45 65 L70 40"/>
+        </svg>
+    </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        
+        // --- DATASET with individual SVGs restored ---
+        const PARTS = [
+            { id: "nucleus", name: "Nucleus", synonyms: ["control center"], prompt: "I am the cell’s control center.", type: "both",
+              svg: `<g fill="#8B5CF6"><circle cx="50" cy="50" r="30"/><circle cx="50" cy="50" r="15" fill="#C4B5FD"/></g>`,
+              hotspot: { plant: { x: 73, y: 30 }, animal: { x: 50, y: 35 } } },
+            { id: "cell-membrane", name: "Cell Membrane", synonyms: ["plasma membrane"], prompt: "I control what enters and exits the cell.", type: "both",
+              svg: `<g fill="none" stroke="#FBBF24" stroke-width="5"><rect x="5" y="5" width="90" height="90" rx="10"/></g>`,
+              hotspot: { plant: { x: 13, y: 50 }, animal: { x: 9, y: 50 } } },
+            { id: "cytoplasm", name: "Cytoplasm", synonyms: ["cytosol"], prompt: "I am the jelly-like fluid holding organelles.", type: "both",
+              svg: `<g fill="#60A5FA" opacity="0.3"><rect x="10" y="10" width="80" height="80" rx="20"/></g>`,
+              hotspot: { plant: { x: 50, y: 15 }, animal: { x: 65, y: 65 } } },
+            { id: "mitochondria", name: "Mitochondria", synonyms: ["powerhouse"], prompt: "I am the powerhouse of the cell.", type: "both",
+              svg: `<g fill="#F472B6"><ellipse cx="50" cy="50" rx="35" ry="20"/><path d="M25 50 Q 37.5 40, 50 50 T 75 50" stroke="#FCC7E3" stroke-width="4" fill="none"/></g>`,
+              hotspot: { plant: { x: 25, y: 70 }, animal: { x: 28, y: 60 } } },
+            { id: "ribosomes", name: "Ribosomes", synonyms: ["protein factories"], prompt: "I build proteins like a tiny factory.", type: "both",
+              svg: `<g fill="#4B5563"><circle cx="40" cy="40" r="5"/><circle cx="60" cy="60" r="5"/><circle cx="55" cy="35" r="5"/></g>`,
+              hotspot: { plant: { x: 60, y: 20 }, animal: { x: 40, y: 25 } } },
+            { id: "golgi-apparatus", name: "Golgi Apparatus", synonyms: ["golgi complex"], prompt: "I package and ship proteins.", type: "both",
+              svg: `<g stroke="#10B981" stroke-width="5" fill="none" stroke-linecap="round"><path d="M30 30 C 40 40, 60 40, 70 30"/><path d="M30 45 C 40 55, 60 55, 70 45"/><path d="M30 60 C 40 70, 60 70, 70 60"/></g>`,
+              hotspot: { plant: { x: 25, y: 53 }, animal: { x: 70, y: 55 } } },
+            { id: "endoplasmic-reticulum", name: "Endoplasmic Reticulum", synonyms: ["er"], prompt: "I transport materials throughout the cell.", type: "both",
+              svg: `<g stroke="#6366F1" stroke-width="5" fill="none" stroke-linejoin="round"><path d="M20 70 L 30 50 L 40 70 L 50 50 L 60 70 L 70 50 L 80 70"/></g>`,
+              hotspot: { plant: { x: 75, y: 48 }, animal: { x: 50, y: 55 } } },
+            { id: "vacuole", name: "Vacuole", synonyms: ["storage sac"], prompt: "I store water and nutrients.", type: "both",
+              svg: `<g fill="#A78BFA" opacity="0.7"><ellipse cx="50" cy="50" rx="40" ry="25"/></g>`,
+              hotspot: { plant: { x: 45, y: 50 }, animal: { x: 25, y: 25 } } },
+            { id: "cell-wall", name: "Cell Wall", synonyms: [], prompt: "I provide rigid structure to plant cells.", type: "plant",
+              svg: `<g fill="none" stroke="#84CC16" stroke-width="8"><rect x="5" y="5" width="90" height="90" rx="5"/></g>`,
+              hotspot: { plant: { x: 7, y: 50 } } },
+            { id: "chloroplast", name: "Chloroplast", synonyms: [], prompt: "I perform photosynthesis in plant cells.", type: "plant",
+              svg: `<g fill="#16A34A"><ellipse cx="50" cy="50" rx="35" ry="25"/><circle cx="40" cy="50" r="8" fill="#BEF264"/><circle cx="60" cy="50" r="8" fill="#BEF264"/></g>`,
+              hotspot: { plant: { x: 25, y: 25 } } },
+            { id: "plasmodesmata", name: "Plasmodesmata", synonyms: ["channels"], prompt: "I connect neighboring plant cells.", type: "plant",
+              svg: `<g stroke="#F59E0B" stroke-width="4"><line x1="20" y1="50" x2="80" y2="50"/><line x1="20" y1="60" x2="80" y2="60"/></g>`,
+              hotspot: { plant: { x: 50, y: 92 } } },
+            { id: "lysosomes", name: "Lysosomes", synonyms: ["cleanup crew"], prompt: "I digest waste in animal cells.", type: "animal",
+              svg: `<g fill="#EF4444"><circle cx="50" cy="50" r="20"/><circle cx="45" cy="45" r="3" fill="#FEE2E2"/></g>`,
+              hotspot: { animal: { x: 75, y: 25 } } },
+            { id: "centrosome", name: "Centrosome", synonyms: ["centrioles"], prompt: "I help with animal cell division.", type: "animal",
+              svg: `<g stroke="#78716C" stroke-width="6"><line x1="40" y1="40" x2="60" y2="60"/><line x1="40" y1="60" x2="60" y2="40"/></g>`,
+              hotspot: { animal: { x: 78, y: 45 } } },
+        ];
+        
+        const screens = { start: document.getElementById('start-screen'), game: document.getElementById('game-screen'), final: document.getElementById('final-screen') };
+        const modeButtons = document.querySelectorAll('.mode-btn');
+        const scoreDisplay = document.getElementById('score-display');
+        const progressBar = document.getElementById('progress-bar');
+        const partSvgContainer = document.getElementById('part-svg-container');
+        const promptEl = document.getElementById('prompt');
+        const answerForm = document.getElementById('answer-form');
+        const answerInput = document.getElementById('answer-input');
+        const feedbackArea = document.getElementById('feedback-area');
+        const finalLayoutContainer = document.getElementById('final-layout-container');
+        const tooltip = document.getElementById('tooltip');
+        const playAgainBtn = document.getElementById('play-again-btn');
+        const switchModeBtn = document.getElementById('switch-mode-btn');
+
+        let gameState = { currentMode: null, partsInPlay: [], currentPartIndex: 0, score: 0, attempts: 1, bestScores: { plant: 0, animal: 0, mixed: 0 } };
+
+        const levenshtein = (a, b) => {
+            const an = a.length, bn = b.length; if (an === 0) return bn; if (bn === 0) return an;
+            const matrix = Array(bn + 1).fill(0).map(() => Array(an + 1).fill(0));
+            for (let i = 0; i <= an; i++) matrix[0][i] = i; for (let j = 0; j <= bn; j++) matrix[j][0] = j;
+            for (let j = 1; j <= bn; j++) for (let i = 1; i <= an; i++) matrix[j][i] = Math.min(matrix[j][i - 1] + 1, matrix[j - 1][i] + 1, matrix[j - 1][i - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+            return matrix[bn][an];
+        };
+        const normalizeString = str => str.toLowerCase().trim().replace(/\s+/g, ' ').replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g,"").replace(/s$/, '');
+        const shuffleArray = a => { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+        const switchScreen = id => { Object.values(screens).forEach(s => s.classList.remove('active')); screens[id].classList.add('active'); };
+
+        function init() {
+            loadState();
+            setupStartScreen();
+            modeButtons.forEach(btn => btn.addEventListener('click', () => startGame(btn.dataset.mode)));
+            answerForm.addEventListener('submit', handleAnswerSubmit);
+            playAgainBtn.addEventListener('click', () => startGame(gameState.currentMode));
+            switchModeBtn.addEventListener('click', () => { switchScreen('start'); setupStartScreen(); });
+        }
+        
+        function setupStartScreen() {
+            const plantCount = PARTS.filter(p => p.type === 'plant' || p.type === 'both').length;
+            const animalCount = PARTS.filter(p => p.type === 'animal' || p.type === 'both').length;
+            const mixedCount = PARTS.length;
+            document.querySelector('#btn-plant .count').textContent = plantCount;
+            document.querySelector('#btn-animal .count').textContent = animalCount;
+            document.querySelector('#btn-mixed .count').textContent = mixedCount;
+        }
+
+        function startGame(mode) {
+            gameState.currentMode = mode; gameState.currentPartIndex = 0; gameState.score = 0; gameState.attempts = 1;
+            document.getElementById('current-mode-display').textContent = `${mode.charAt(0).toUpperCase() + mode.slice(1)} Cell`;
+            if (mode === 'mixed') gameState.partsInPlay = PARTS.slice();
+            else gameState.partsInPlay = PARTS.filter(p => p.type === mode || p.type === 'both');
+            gameState.partsInPlay = shuffleArray(gameState.partsInPlay);
+            switchScreen('game'); renderRound();
+        }
+
+        function renderRound() {
+            if (gameState.currentPartIndex >= gameState.partsInPlay.length) { renderFinalCell(); return; }
+            const part = gameState.partsInPlay[gameState.currentPartIndex];
+            progressBar.style.width = `${(gameState.currentPartIndex / gameState.partsInPlay.length) * 100}%`;
+            scoreDisplay.textContent = `Score: ${gameState.score}`;
+            // --- BUG FIX IS HERE ---
+            partSvgContainer.innerHTML = `<svg viewBox="0 0 100 100">${part.svg}</svg>`;
+            promptEl.textContent = part.prompt;
+            answerInput.value = ''; answerInput.focus(); feedbackArea.innerHTML = ''; gameState.attempts = 1;
+        }
+
+        function handleAnswerSubmit(e) {
+            e.preventDefault();
+            const userAnswer = answerInput.value; if (!userAnswer) return;
+            const currentPart = gameState.partsInPlay[gameState.currentPartIndex];
+            if (checkAnswer(normalizeString(userAnswer), currentPart)) handleCorrectAnswer();
+            else handleIncorrectAnswer();
+        }
+
+        function checkAnswer(normalizedUserAnswer, part) {
+            const normalizedCorrectName = normalizeString(part.name);
+            const normalizedSynonyms = part.synonyms.map(normalizeString);
+            if (normalizedUserAnswer === normalizedCorrectName || normalizedSynonyms.includes(normalizedUserAnswer)) return true;
+            const distance = levenshtein(normalizedUserAnswer, normalizedCorrectName);
+            return distance <= 2 || (distance / normalizedCorrectName.length <= 0.25);
+        }
+
+        function handleCorrectAnswer() {
+            gameState.score += gameState.attempts === 1 ? 1.0 : 0.5;
+            scoreDisplay.textContent = `Score: ${gameState.score}`;
+            feedbackArea.innerHTML = `<span class="feedback-correct">Nice work!</span>`;
+            document.getElementById('tick-animation').classList.add('animate');
+            setTimeout(() => { document.getElementById('tick-animation').classList.remove('animate'); gameState.currentPartIndex++; renderRound(); }, 1500);
+        }
+
+        function handleIncorrectAnswer() {
+            const currentPart = gameState.partsInPlay[gameState.currentPartIndex];
+            if (gameState.attempts === 1) {
+                gameState.attempts++;
+                feedbackArea.innerHTML = `<span class="feedback-close">You were really very close!</span><br>Hint: The name starts with "${currentPart.name.charAt(0)}".`;
+                answerInput.select();
+            } else {
+                feedbackArea.innerHTML = `<span class="feedback-reveal">The correct answer was: <strong>${currentPart.name}</strong></span>`;
+                setTimeout(() => { gameState.currentPartIndex++; renderRound(); }, 2500);
+            }
+        }
+        
+        function getPlantCellSVG() {
+            return `
+            <svg viewBox="0 0 100 100" style="background-color: #e0f2f1;">
+                <defs><filter id="inner-shadow"><feFlood flood-color="#4CAF50"/><feComposite in2="SourceAlpha" operator="out"/><feGaussianBlur stdDeviation="2" result="blur"/><feComposite in2="blur" operator="in"/></filter></defs>
+                <path d="M50 8 L90 25 L90 75 L50 92 L10 75 L10 25 Z" fill="#a5d6a7" stroke="#388e3c" stroke-width="0.5"/>
+                <path d="M50 10 L87 26 L87 74 L50 90 L13 74 L13 26 Z" fill="#c8e6c9" filter="url(#inner-shadow)"/>
+                <path d="M50 12 L84 27 L84 73 L50 88 L16 73 L16 27 Z" fill="none" stroke="#a5d6a7" stroke-width="1.5"/>
+                <path d="M30 40 C 60 15, 70 20, 50 50 C 30 80, 50 85, 70 60" fill="#a7ffeb" opacity="0.6" stroke="#00796b" stroke-width="0.5"/>
+                <g id="nucleus"><circle cx="73" cy="30" r="10" fill="#7e57c2"/><circle cx="73" cy="30" r="4" fill="#5e35b1"/></g>
+                <g id="er"><path d="M63 25 C 65 18, 75 18, 80 25 C 85 32, 85 40, 78 45 C 71 50, 63 50, 68 43" stroke="#ba68c8" stroke-width="1.5" fill="none"/></g>
+                <g id="ribosomes-er"><circle cx="66" cy="23" r="0.8" fill="#424242"/><circle cx="78" cy="22" r="0.8" fill="#424242"/><circle cx="82" cy="38" r="0.8" fill="#424242"/></g>
+                <g id="chloroplasts"><circle cx="25" cy="25" r="5" fill="#66bb6a"/><circle cx="35" cy="80" r="5" fill="#66bb6a"/><circle cx="60" cy="80" r="5" fill="#66bb6a"/></g>
+                <g id="mitochondria"><ellipse cx="25" cy="70" ry="4" rx="8" fill="#ff7043"/><path d="M20 70 C 23 68, 27 68, 30 70" stroke="#ffab91" stroke-width="0.5" fill="none"/></g>
+                <g id="golgi"><path d="M25 50 C 30 48, 30 58, 25 56 C 20 54, 20 64, 25 62" stroke="#ffca28" stroke-width="1.5" fill="none"/></g>
+                <g id="plasmodesmata"><path d="M50 90 L50 92" stroke="#ffeb3b" stroke-width="1"/><path d="M48 90 L48 92" stroke="#ffeb3b" stroke-width="1"/></g>
+            </svg>`;
+        }
+        
+        function getAnimalCellSVG() {
+            return `
+            <svg viewBox="0 0 100 100" style="background-color: #fff3e0;">
+                <defs><filter id="animal-shadow"><feFlood flood-color="#ff9800" opacity="0.5"/><feComposite in2="SourceAlpha" operator="out"/><feGaussianBlur stdDeviation="2" result="blur"/><feComposite in2="blur" operator="in"/></filter></defs>
+                <path d="M50,10 C 90,10 90,90 50,90 C 10,90 10,10 50,10" fill="#ffe0b2" stroke="#fb8c00" stroke-width="0.5"/>
+                <path d="M50,12 C 85,12 85,88 50,88 C 15,88 15,12 50,12" fill="#fff3e0" filter="url(#animal-shadow)"/>
+                <g id="nucleus"><circle cx="50" cy="35" r="12" fill="#7e57c2"/><circle cx="50" cy="35" r="5" fill="#5e35b1"/></g>
+                <g id="er"><path d="M38 40 C 35 50, 45 55, 50 50 C 55 45, 65 50, 62 40" stroke="#ba68c8" stroke-width="1.5" fill="none"/></g>
+                <g id="ribosomes-er"><circle cx="40" cy="48" r="0.8" fill="#424242"/><circle cx="58" cy="48" r="0.8" fill="#424242"/></g>
+                <g id="mitochondria"><ellipse cx="28" cy="60" ry="5" rx="10" fill="#ff7043"/><path d="M22 60 C 26 57, 30 57, 34 60" stroke="#ffab91" stroke-width="0.5" fill="none"/></g>
+                <g id="golgi"><path d="M70 52 C 75 50, 75 60, 70 58 C 65 56, 65 66, 70 64" stroke="#ffca28" stroke-width="1.5" fill="none"/></g>
+                <g id="lysosomes"><circle cx="75" cy="25" r="4" fill="#ef5350"/></g>
+                <g id="vacuole"><circle cx="25" cy="25" r="5" fill="#4fc3f7" opacity="0.7"/></g>
+                <g id="centrosome" transform="translate(78, 45) rotate(45)"><rect x="-4" y="-1" width="8" height="2" fill="#a1887f"/><rect x="-1" y="-4" width="2" height="8" fill="#a1887f"/></g>
+            </svg>`;
+        }
+
+        function renderFinalCell() {
+            updateBestScores(); saveState();
+            const mode = gameState.currentMode;
+            document.getElementById('final-title').textContent = mode === 'mixed' ? "Cell Comparison" : `The ${mode.charAt(0).toUpperCase() + mode.slice(1)} Cell`;
+            finalLayoutContainer.innerHTML = '';
+            if (mode === 'mixed') {
+                finalLayoutContainer.innerHTML += createCellDisplay('plant');
+                finalLayoutContainer.innerHTML += createCellDisplay('animal');
+            } else {
+                finalLayoutContainer.innerHTML = createCellDisplay(mode);
+            }
+            setupTooltips(); switchScreen('final');
+        }
+        
+        function createCellDisplay(type) {
+            const parts = PARTS.filter(p => p.type === type || p.type === 'both');
+            let legendItems = '', hotspotItems = '';
+            parts.forEach(part => {
+                const hotspot = part.hotspot[type];
+                legendItems += `<li id="legend-${part.id}-${type}">${part.name}</li>`;
+                hotspotItems += `<circle class="hotspot" data-id="${part.id}" data-type="${type}" cx="${hotspot.x}" cy="${hotspot.y}" />`;
+            });
+            const cellSVG = type === 'plant' ? getPlantCellSVG().replace('</svg>', `${hotspotItems}</svg>`) : getAnimalCellSVG().replace('</svg>', `${hotspotItems}</svg>`);
+            return `
+                <div class="final-cell-wrapper">
+                    <h3>${type.charAt(0).toUpperCase() + type.slice(1)} Cell</h3>
+                    <div class="final-cell-container">${cellSVG}</div>
+                    <div class="legend"><ul>${legendItems}</ul></div>
+                </div>`;
+        }
+
+        function setupTooltips() {
+            document.querySelectorAll('.hotspot').forEach(hotspot => {
+                const partId = hotspot.dataset.id, partType = hotspot.dataset.type;
+                const part = PARTS.find(p => p.id === partId);
+                const legendItem = document.getElementById(`legend-${partId}-${partType}`);
+                hotspot.addEventListener('mouseenter', e => {
+                    tooltip.innerHTML = `<strong>${part.name}</strong><br>${part.prompt}`;
+                    tooltip.classList.add('visible');
+                    if (legendItem) legendItem.classList.add('highlighted');
+                });
+                hotspot.addEventListener('mousemove', e => {
+                    tooltip.style.left = `${e.clientX + 15}px`;
+                    tooltip.style.top = `${e.clientY + 15}px`;
+                });
+                hotspot.addEventListener('mouseleave', () => {
+                    tooltip.classList.remove('visible');
+                    if (legendItem) legendItem.classList.remove('highlighted');
+                });
+            });
+        }
+        
+        function updateBestScores() { if (gameState.score > gameState.bestScores[gameState.currentMode]) gameState.bestScores[gameState.currentMode] = gameState.score; }
+        
+        function saveState() { localStorage.setItem('cellQuestBestScores', JSON.stringify(gameState.bestScores)); }
+        function loadState() { const saved = localStorage.getItem('cellQuestBestScores'); if (saved) gameState.bestScores = JSON.parse(saved); }
+
+        init();
+    });
+</script>
+
+</body>
+</html>
