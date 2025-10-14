@@ -5,360 +5,83 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🚀 Rocket Fuel Quiz Adventure!</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        :root {
+            --primary: #4f46e5;
+            --secondary: #22c55e;
+            --light-gray: #f8f9fa;
+            --medium-gray: #e5e7eb;
+            --text-dark: #1e293b;
+            --text-light: #64748b;
         }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: 'Comic Sans MS', cursive, sans-serif;
-            background: linear-gradient(135deg, #87CEEB 0%, #E0F6FF 50%, #98FB98 100%);
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background-color: var(--light-gray);
+            color: var(--text-dark);
             min-height: 100vh;
-            overflow-x: hidden;
-        }
-
-        .container {
-            max-width: 900px;
-            margin: 0 auto;
             padding: 20px;
-            text-align: center;
         }
-
-        h1 {
-            color: #4169E1;
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
-        }
-
-        .subtitle {
-            color: #FF6347;
-            font-size: 1.2rem;
-            margin-bottom: 30px;
-        }
-
-        .game-area {
-            display: flex;
-            gap: 30px;
-            align-items: flex-end;
-            justify-content: center;
-            margin-bottom: 30px;
-        }
-
-        .rocket-container {
-            position: relative;
-            width: 200px;
-            height: 400px;
-        }
-
+        .container { max-width: 800px; margin: 0 auto; text-align: center; }
+        h1 { color: var(--primary); font-size: 2.5rem; margin-bottom: 10px; }
+        .subtitle { color: var(--text-light); font-size: 1.2rem; margin-bottom: 30px; }
+        .game-area { display: flex; gap: 30px; align-items: flex-end; justify-content: center; margin-bottom: 30px; min-height: 400px; }
+        .rocket-container { position: relative; width: 100px; height: 400px; }
         .rocket {
-            position: absolute;
-            bottom: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 80px;
-            height: 120px;
-            background: linear-gradient(45deg, #FF6B6B, #FF8E53);
-            border-radius: 40px 40px 10px 10px;
-            transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            position: absolute; bottom: 0; left: 50%;
+            transform: translateX(-50%); width: 60px; height: 100px;
+            background-color: #d1d5db; border-radius: 30px 30px 5px 5px;
+            transition: bottom 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
         }
-
-        .rocket::before {
-            content: '';
-            position: absolute;
-            top: 10px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 20px;
-            height: 20px;
-            background: #FFD700;
-            border-radius: 50%;
+        .rocket::before { /* Cockpit */
+            content: ''; position: absolute; top: -15px; left: 50%;
+            transform: translateX(-50%); width: 40px; height: 40px;
+            background: var(--primary); border-radius: 50% 50% 10% 10%;
         }
-
-        .rocket::after {
-            content: '';
-            position: absolute;
-            bottom: -15px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 0;
-            height: 0;
-            border-left: 15px solid transparent;
-            border-right: 15px solid transparent;
-            border-top: 20px solid #FF4757;
-        }
-
         .flames {
-            position: absolute;
-            bottom: -30px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 40px;
-            height: 25px;
-            background: radial-gradient(ellipse, #FF6B35 0%, #F7931E 50%, transparent 70%);
-            border-radius: 50%;
-            opacity: 0;
-            animation: flicker 0.3s infinite alternate;
+            position: absolute; bottom: -25px; left: 50%;
+            transform: translateX(-50%); width: 30px; height: 20px;
+            background: radial-gradient(ellipse, #f59e0b 0%, #ef4444 50%, transparent 70%);
+            border-radius: 50%; opacity: 0; animation: flicker 0.3s infinite alternate;
         }
-
-        @keyframes flicker {
-            0% { transform: translateX(-50%) scaleY(1); }
-            100% { transform: translateX(-50%) scaleY(1.2); }
-        }
-
-        .fuel-gauge {
-            width: 300px;
-            background: #E8F4FD;
-            border-radius: 20px;
-            padding: 20px;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
-        }
-
-        .fuel-title {
-            color: #4169E1;
-            font-size: 1.3rem;
-            margin-bottom: 15px;
-            font-weight: bold;
-        }
-
-        .fuel-bar {
-            width: 100%;
-            height: 30px;
-            background: #DDD;
-            border-radius: 15px;
-            overflow: hidden;
-            margin-bottom: 15px;
-            position: relative;
-        }
-
-        .fuel-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #32CD32, #98FB98);
-            border-radius: 15px;
-            width: 100%;
-            transition: all 0.6s ease;
-            position: relative;
-        }
-
-        .fuel-leak {
-            animation: leak 0.5s ease-in-out;
-        }
-
-        @keyframes leak {
-            0%, 100% { width: var(--fuel-width); }
-            50% { width: calc(var(--fuel-width) - 10%); }
-        }
-
-        .fuel-text {
-            color: #4169E1;
-            font-weight: bold;
-            font-size: 1.1rem;
-        }
-
-        .question-card {
-            background: white;
-            border-radius: 20px;
-            padding: 25px;
-            margin: 20px 0;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
-            border: 3px solid #87CEEB;
-        }
-
-        .question {
-            font-size: 1.4rem;
-            color: #2C3E50;
-            margin-bottom: 20px;
-            font-weight: bold;
-        }
-
-        .answers {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-        }
-
+        @keyframes flicker { to { transform: translateX(-50%) scaleY(1.2); } }
+        .fuel-gauge { width: 300px; background: #ffffff; border-radius: 20px; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        .fuel-title { color: var(--text-dark); font-size: 1.3rem; margin-bottom: 15px; font-weight: bold; }
+        .fuel-bar { width: 100%; height: 30px; background: var(--medium-gray); border-radius: 15px; overflow: hidden; }
+        .fuel-fill { height: 100%; background-color: var(--secondary); border-radius: 15px; width: 100%; transition: width 0.6s ease; }
+        .fuel-text { color: var(--text-dark); font-weight: bold; font-size: 1.1rem; margin-top: 10px; }
+        .question-card { background: white; border-radius: 20px; padding: 25px; margin: 20px 0; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        .question { font-size: 1.4rem; color: var(--text-dark); margin-bottom: 20px; font-weight: 600; }
+        .answers { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         .answer-btn {
-            background: linear-gradient(145deg, #FFE5B4, #FFDAB9);
-            border: none;
-            border-radius: 15px;
-            padding: 15px;
-            font-size: 1.1rem;
-            font-weight: bold;
-            color: #8B4513;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            border: 3px solid transparent;
+            background: var(--light-gray); border: 2px solid var(--medium-gray);
+            border-radius: 15px; padding: 15px; font-size: 1.1rem;
+            font-weight: 500; color: var(--text-dark); cursor: pointer; transition: all 0.2s ease;
         }
-
-        .answer-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 6px 15px rgba(0,0,0,0.2);
-            background: linear-gradient(145deg, #F0E68C, #FFE4B5);
+        .answer-btn:hover { border-color: var(--primary); background-color: #eef2ff; }
+        .answer-btn.correct { background: #dcfce7; color: #166534; border-color: #22c55e; }
+        .answer-btn.incorrect { background: #fee2e2; color: #991b1b; border-color: #ef4444; }
+        .score-display { background: #eef2ff; border-radius: 15px; padding: 15px; margin: 20px 0; }
+        .score-text { font-size: 1.3rem; color: var(--primary); font-weight: bold; }
+        .next-btn, .restart-btn {
+            background: var(--primary); color: white; border: none;
+            border-radius: 15px; padding: 15px 30px; font-size: 1.2rem;
+            font-weight: bold; cursor: pointer; margin: 20px 0; transition: background-color 0.2s ease; display: none;
         }
-
-        .answer-btn.correct {
-            background: linear-gradient(145deg, #98FB98, #90EE90);
-            color: #228B22;
-            border-color: #32CD32;
-            animation: correct-bounce 0.6s ease;
-        }
-
-        .answer-btn.incorrect {
-            background: linear-gradient(145deg, #FFB6C1, #FFA07A);
-            color: #DC143C;
-            border-color: #FF6347;
-            animation: shake 0.5s ease;
-        }
-
-        @keyframes correct-bounce {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-        }
-
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-5px); }
-            75% { transform: translateX(5px); }
-        }
-
-        .score-display {
-            background: #FFE4E1;
-            border-radius: 15px;
-            padding: 15px;
-            margin: 20px 0;
-            border: 3px solid #FFB6C1;
-        }
-
-        .score-text {
-            font-size: 1.3rem;
-            color: #DC143C;
-            font-weight: bold;
-        }
-
-        .next-btn {
-            background: linear-gradient(145deg, #87CEEB, #ADD8E6);
-            border: none;
-            border-radius: 20px;
-            padding: 15px 30px;
-            font-size: 1.2rem;
-            font-weight: bold;
-            color: #191970;
-            cursor: pointer;
-            margin: 20px 0;
-            transition: all 0.3s ease;
-            display: none;
-        }
-
-        .next-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-        }
-
-        .completion-message {
-            background: linear-gradient(145deg, #FFD700, #FFA500);
-            border-radius: 20px;
-            padding: 25px;
-            margin: 20px 0;
-            color: #8B4513;
-            font-size: 1.3rem;
-            font-weight: bold;
-            display: none;
-            animation: celebration 1s ease;
-        }
-
-        @keyframes celebration {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-        }
-
-        .stars {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-        }
-
-        .star {
-            position: absolute;
-            color: #FFD700;
-            font-size: 1.5rem;
-            opacity: 0;
-            animation: twinkle 2s infinite;
-        }
-
-        @keyframes twinkle {
-            0%, 100% { opacity: 0; transform: scale(0.5); }
-            50% { opacity: 1; transform: scale(1); }
-        }
-
-        .cloud {
-            position: absolute;
-            background: white;
-            border-radius: 50px;
-            opacity: 0.7;
-            animation: float 8s ease-in-out infinite;
-        }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-20px); }
-        }
-
-        .restart-btn {
-            background: linear-gradient(145deg, #98FB98, #90EE90);
-            border: none;
-            border-radius: 15px;
-            padding: 12px 25px;
-            font-size: 1.1rem;
-            font-weight: bold;
-            color: #228B22;
-            cursor: pointer;
-            margin: 15px 0;
-            transition: all 0.3s ease;
-        }
-
-        .restart-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-        }
+        .next-btn:hover, .restart-btn:hover { background: #4338ca; }
+        .completion-message { background: #eef2ff; border-radius: 20px; padding: 25px; margin: 20px 0; color: var(--primary); font-size: 1.3rem; font-weight: bold; display: none; }
         .back-btn {
-        display: inline-block;   /* so margin works properly */
-        width: 150px;
-        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-        color: white;
-        text-align: center;      /* centers the text inside */
-        text-decoration: none;   /* remove underline */
-        border: none;
-        padding: 10px 20px;
-        border-radius: 12px;
-        font-size: 16px;
-        cursor: pointer;
-        margin: 40px 10px;       /* pushes it down 40px from top */
-    }
-
-    .back-btn:hover {
-        background: #e68900;
-    }
-
+            display: inline-block; background: #ffffff; color: var(--primary); text-decoration: none;
+            border: 2px solid var(--medium-gray); padding: 10px 20px; border-radius: 12px;
+            font-size: 16px; cursor: pointer; margin-bottom: 20px; font-weight: 600;
+        }
+        .back-btn:hover { background: var(--light-gray); }
     </style>
 </head>
 <body>
-     <a href="game.html" class="back-btn">
-           ⬅ Back to Home
-            </a>
-
-    <div class="stars" id="stars"></div>
-    
-    <!-- Floating clouds -->
-    <div class="cloud" style="top: 10%; left: 10%; width: 80px; height: 40px; animation-delay: 0s;"></div>
-    <div class="cloud" style="top: 20%; right: 15%; width: 60px; height: 30px; animation-delay: 2s;"></div>
-    <div class="cloud" style="top: 60%; left: 5%; width: 70px; height: 35px; animation-delay: 4s;"></div>
-
     <div class="container">
-        <h1>🚀 Rocket Fuel Quiz Adventure!</h1>
-        <p class="subtitle">Answer correctly to fuel your rocket and blast off to the stars </p>
+        <a href="game.html" class="back-btn">⬅ Back to Home</a>
+        <h1>🚀 Rocket Fuel Quiz</h1>
+        <p class="subtitle">Answer correctly to fuel your rocket and blast off!</p>
 
         <div class="game-area">
             <div class="rocket-container">
@@ -366,9 +89,8 @@
                     <div class="flames" id="flames"></div>
                 </div>
             </div>
-            
             <div class="fuel-gauge">
-                <div class="fuel-title"> Fuel Tank</div>
+                <div class="fuel-title">⛽ Fuel Tank</div>
                 <div class="fuel-bar">
                     <div class="fuel-fill" id="fuelFill"></div>
                 </div>
@@ -377,7 +99,7 @@
         </div>
 
         <div class="score-display">
-            <div class="score-text" id="scoreDisplay">Score: 0  | Question 1 of 8</div>
+            <div class="score-text" id="scoreDisplay">Score: 0 | Question 1 of 8</div>
         </div>
 
         <div class="question-card" id="questionCard">
@@ -385,14 +107,13 @@
             <div class="answers" id="answersContainer"></div>
         </div>
 
-        <button class="next-btn" id="nextBtn" onclick="nextQuestion()">Next Question! </button>
-        
+        <button class="next-btn" id="nextBtn" onclick="nextQuestion()">Next Question! →</button>
         <div class="completion-message" id="completionMessage"></div>
-        
-        <button class="restart-btn" id="restartBtn" onclick="restartQuiz()" style="display: none;">Launch Another Rocket! 🚀</button>
+        <button class="restart-btn" id="restartBtn" onclick="restartQuiz()">Launch Another Rocket! 🚀</button>
     </div>
 
     <script>
+        // Paste the existing JavaScript code here - it doesn't need to be changed.
         const questions = [
             {
                 question: " What makes rockets go up?",
@@ -480,7 +201,6 @@
                 buttons[selectedIndex].classList.add('correct');
                 score += 10;
                 launchRocket();
-                createStars();
                 showFlames();
             } else {
                 // Wrong answer
@@ -498,21 +218,14 @@
 
         function launchRocket() {
             const rocket = document.getElementById('rocket');
-            const newHeight = 50 + (currentQuestion + 1) * 35;
+            const newHeight = (score / (questions.length * 10)) * 300; // Max height of 300px
             rocket.style.bottom = `${newHeight}px`;
         }
 
         function fuelLeak() {
-            fuel = Math.max(0, fuel - 12.5);
+            fuel = Math.max(0, fuel - (100 / questions.length));
             const fuelFill = document.getElementById('fuelFill');
-            fuelFill.style.setProperty('--fuel-width', `${fuel}%`);
-            fuelFill.classList.add('fuel-leak');
             fuelFill.style.width = `${fuel}%`;
-            
-            setTimeout(() => {
-                fuelFill.classList.remove('fuel-leak');
-            }, 500);
-            
             updateFuelDisplay();
         }
 
@@ -524,39 +237,15 @@
             }, 1000);
         }
 
-        function createStars() {
-            const starsContainer = document.getElementById('stars');
-            for (let i = 0; i < 5; i++) {
-                const star = document.createElement('div');
-                star.className = 'star';
-                star.textContent = '⭐';
-                star.style.left = Math.random() * 100 + '%';
-                star.style.top = Math.random() * 100 + '%';
-                star.style.animationDelay = Math.random() * 2 + 's';
-                starsContainer.appendChild(star);
-                
-                setTimeout(() => {
-                    star.remove();
-                }, 2000);
-            }
-        }
-
         function updateDisplay() {
             document.getElementById('scoreDisplay').textContent = 
-                `Score: ${score} 🌟 | Question ${currentQuestion + 1} of ${questions.length}`;
+                `Score: ${score} | Question ${currentQuestion + 1} of ${questions.length}`;
         }
 
         function updateFuelDisplay() {
             const fuelText = document.getElementById('fuelText');
-            if (fuel > 75) {
-                fuelText.textContent = `${fuel}% Full - Great! 🔥`;
-            } else if (fuel > 50) {
-                fuelText.textContent = `${fuel}% - Good! ⚡`;
-            } else if (fuel > 25) {
-                fuelText.textContent = `${fuel}% - Low! ⚠️`;
-            } else {
-                fuelText.textContent = `${fuel}% - Critical! 🚨`;
-            }
+            document.getElementById('fuelFill').style.backgroundColor = fuel > 25 ? '#22c55e' : '#ef4444';
+            fuelText.textContent = `${Math.round(fuel)}% Fuel`;
         }
 
         function nextQuestion() {
@@ -577,23 +266,16 @@
             
             let message = '';
             if (score === questions.length * 10) {
-                message = `🎉 PERFECT LAUNCH! 🎉<br>You got all ${questions.length} questions right!<br>Your rocket reached the stars! ⭐🚀⭐<br>Score: ${score} points`;
-            } else if (score >= questions.length * 7) {
-                message = `🌟 AMAZING FLIGHT! 🌟<br>You got most questions right!<br>Your rocket soared high! 🚀<br>Score: ${score} points`;
+                message = `🎉 PERFECT LAUNCH! You scored ${score} points and reached the stars!`;
             } else if (score >= questions.length * 5) {
-                message = `🚀 GOOD LAUNCH! 🚀<br>Nice job learning about rockets!<br>Score: ${score} points`;
+                message = `🌟 AMAZING FLIGHT! Your rocket soared high with a score of ${score}!`;
             } else {
-                message = `🛠️ MISSION PRACTICE! 🛠️<br>Every astronaut needs practice!<br>Try again to reach the stars! 🌟<br>Score: ${score} points`;
+                message = `🛠️ MISSION PRACTICE! Every astronaut needs practice. You scored ${score}. Try again!`;
             }
             
             completionMsg.innerHTML = message;
             completionMsg.style.display = 'block';
             restartBtn.style.display = 'inline-block';
-            
-            // Create celebration stars
-            for (let i = 0; i < 10; i++) {
-                setTimeout(() => createStars(), i * 200);
-            }
         }
 
         function restartQuiz() {
@@ -602,23 +284,18 @@
             fuel = 100;
             answered = false;
             
-            // Reset rocket position
             document.getElementById('rocket').style.bottom = '0px';
-            
-            // Reset fuel display
             document.getElementById('fuelFill').style.width = '100%';
             updateFuelDisplay();
             
-            // Reset UI
             document.getElementById('questionCard').style.display = 'block';
             document.getElementById('completionMessage').style.display = 'none';
             document.getElementById('restartBtn').style.display = 'none';
-            document.getElementById('nextBtn').style.display = 'none';
             
             displayQuestion();
         }
 
-        // Initialize the quiz
+        // Initialize
         displayQuestion();
         updateFuelDisplay();
     </script>

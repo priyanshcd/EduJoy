@@ -3,7 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EduQuest - Gamified Learning for Rural Education</title>
+    <title>EduJoy - Gamified Learning</title>
+    <!-- Link to the Web App Manifest -->
+    <link rel="manifest" href="manifest.json">
+    <!-- Add the Favicon link here -->
+    <link rel="icon" type="image/png" href="favicon.png">
+    <meta name="theme-color" content="#4f46e5">
     <style>
         * {
             margin: 0;
@@ -12,91 +17,28 @@
         }
 
         :root {
-            --primary: #6366f1;
+            --primary: #4f46e5;
             --secondary: #22c55e;
-            --accent: #fbbf24;
-            --danger: #ef4444;
-            --dark: #1e293b;
-            --light: #f8fafc;
-            --gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --light-gray: #f8f9fa;
+            --medium-gray: #e5e7eb;
+            --dark-gray: #4b5563;
+            --text-dark: #1e293b;
+            --text-light: #64748b;
         }
 
         body {
             font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            color: #333;
-            position: relative;
-            overflow-x: hidden;
+            background-color: var(--light-gray);
+            color: var(--text-dark);
         }
 
-        /* Animated Background */
-        .bg-animation {
-            position: fixed;
-            width: 100%;
-            height: 100%;
-            top: 0;
-            left: 0;
-            z-index: -1;
-            opacity: 0.3;
-        }
-
-        .floating-shape {
-            position: absolute;
-            animation: float 20s infinite ease-in-out;
-        }
-
-        .shape1 {
-            width: 80px;
-            height: 80px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 50%;
-            top: 20%;
-            left: 10%;
-            animation-delay: 0s;
-        }
-
-        .shape2 {
-            width: 120px;
-            height: 120px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
-            top: 60%;
-            right: 10%;
-            animation-delay: 5s;
-        }
-
-        .shape3 {
-            width: 100px;
-            height: 100px;
-            background: rgba(255, 255, 255, 0.1);
-            clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
-            bottom: 20%;
-            left: 50%;
-            animation-delay: 10s;
-        }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(0) rotate(0deg); }
-            33% { transform: translateY(-30px) rotate(120deg); }
-            66% { transform: translateY(30px) rotate(240deg); }
-        }
-
-        /* Header */
         header {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
+            background: #ffffff;
             padding: 1rem 2rem;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
             position: sticky;
             top: 0;
             z-index: 1000;
-            animation: slideDown 0.5s ease-out;
-        }
-
-        @keyframes slideDown {
-            from { transform: translateY(-100%); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
         }
 
         nav {
@@ -108,37 +50,19 @@
         }
 
         .logo {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
             font-size: 1.5rem;
             font-weight: bold;
-            background: var(--gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
+            color: var(--primary);
         }
 
         .user-stats {
             display: flex;
             gap: 2rem;
             align-items: center;
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            background: #eef2ff;
             padding: 0.5rem 1.5rem;
             border-radius: 50px;
-            color: white;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            animation: slideIn 0.6s ease-out 0.2s both;
-        }
-
-        @keyframes slideIn {
-            from { transform: translateX(50px); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
+            color: #4338ca;
         }
 
         .stat {
@@ -153,24 +77,16 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            background: rgba(255,255,255,0.3);
+            background: rgba(79, 70, 229, 0.1);
             border-radius: 50%;
-            /* animation: rotate 3s linear infinite; */
         }
 
-        @keyframes rotate {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
-
-        /* Main Container */
         .container {
             max-width: 1400px;
             margin: 2rem auto;
             padding: 0 2rem;
         }
 
-        /* Dashboard Grid */
         .dashboard-grid {
             display: grid;
             grid-template-columns: 300px 1fr;
@@ -178,22 +94,14 @@
             margin-top: 2rem;
         }
 
-        /* Progress Card */
         .progress-card {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
+            background: #ffffff;
             border-radius: 20px;
             padding: 2rem;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            animation: fadeInUp 0.6s ease-out 0.3s both;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
             position: sticky;
             top: 100px;
             height: fit-content;
-        }
-
-        @keyframes fadeInUp {
-            from { transform: translateY(30px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
         }
 
         .level-badge {
@@ -204,55 +112,22 @@
         .level-number {
             font-size: 3rem;
             font-weight: bold;
-            background: var(--gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            animation: glow 2s ease-in-out infinite;
-        }
-
-        @keyframes glow {
-            0%, 100% { filter: brightness(1); }
-            50% { filter: brightness(1.2); }
+            color: var(--primary);
         }
 
         .progress-bar {
-            background: #e2e8f0;
+            background: var(--medium-gray);
             height: 20px;
             border-radius: 10px;
             overflow: hidden;
             margin: 1rem 0;
-            position: relative;
         }
 
         .progress-fill {
             height: 100%;
-            background: linear-gradient(90deg, #22c55e, #16a34a);
+            background-color: var(--secondary);
             border-radius: 10px;
             width: 65%;
-            position: relative;
-            animation: fillProgress 1s ease-out;
-            overflow: hidden;
-        }
-
-        .progress-fill::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-            animation: shimmer 2s infinite;
-        }
-
-        @keyframes shimmer {
-            from { transform: translateX(-100%); }
-            to { transform: translateX(100%); }
-        }
-
-        @keyframes fillProgress {
-            from { width: 0; }
-            to { width: 65%; }
         }
 
         .achievements {
@@ -268,72 +143,44 @@
 
         .achievement {
             aspect-ratio: 1;
-            background: linear-gradient(135deg, #ffd89b 0%, #19547b 100%);
+            background-color: #eef2ff;
+            color: #4338ca;
             border-radius: 15px;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 2rem;
             cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            animation: bounceIn 0.6s ease-out;
+            transition: transform 0.2s ease;
         }
-
+        
         .achievement:hover {
-            transform: scale(1.1) rotate(5deg);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+            transform: scale(1.1);
         }
 
         .achievement.locked {
-            background: #94a3b8;
-            opacity: 0.5;
+            background: var(--medium-gray);
+            color: var(--text-light);
+            opacity: 0.7;
         }
 
-        @keyframes bounceIn {
-            0% { transform: scale(0); opacity: 0; }
-            50% { transform: scale(1.1); }
-            100% { transform: scale(1); opacity: 1; }
-        }
-
-        /* Subject Cards */
         .subjects-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
             gap: 2rem;
-            animation: fadeInUp 0.6s ease-out 0.4s both;
         }
 
         .subject-card {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
+            background: #ffffff;
             border-radius: 20px;
             padding: 2rem;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
-
-        .subject-card::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(99,102,241,0.1) 0%, transparent 70%);
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
-
-        .subject-card:hover::before {
-         pointer-events: none;
-        }
-
+        
         .subject-card:hover {
-            transform: translateY(-10px) scale(1.02);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.08);
         }
 
         .subject-icon {
@@ -344,14 +191,10 @@
             align-items: center;
             justify-content: center;
             font-size: 3rem;
-            background: var(--gradient);
+            background: #eef2ff;
+            color: var(--primary);
             border-radius: 20px;
-            animation: float 3s ease-in-out infinite;
         }
-
-        .subject-card:nth-child(2) .subject-icon { animation-delay: 0.5s; }
-        .subject-card:nth-child(3) .subject-icon { animation-delay: 1s; }
-        .subject-card:nth-child(4) .subject-icon { animation-delay: 1.5s; }
 
         .subject-title {
             font-size: 1.5rem;
@@ -362,7 +205,7 @@
 
         .subject-progress {
             text-align: center;
-            color: #64748b;
+            color: var(--text-light);
             margin-bottom: 1rem;
         }
 
@@ -372,25 +215,19 @@
 
         .lesson-item {
             padding: 0.75rem;
-            background: #f8fafc;
+            background: var(--light-gray);
             border-radius: 10px;
             margin-bottom: 0.5rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            transition: all 0.3s;
-        }
-
-        .lesson-item:hover {
-            background: linear-gradient(90deg, #e0e7ff, #f0f4ff);
-            transform: translateX(5px);
         }
 
         .lesson-status {
             width: 24px;
             height: 24px;
             border-radius: 50%;
-            background: #22c55e;
+            background: var(--secondary);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -399,241 +236,32 @@
         }
 
         .lesson-status.locked {
-            background: #cbd5e1;
+            background: var(--medium-gray);
         }
 
-        /* Quiz Modal */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.7);
-            backdrop-filter: blur(5px);
-            z-index: 2000;
-            animation: fadeIn 0.3s;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-       .play-btn {
-            display: inline-block;
-            padding: 8px 16px;
-            background: #47c04b;
+        .play-btn {
+            display: block;
+            text-align: center;
+            padding: 12px 16px;
+            background: var(--primary);
             color: white;
             text-decoration: none;
             border-radius: 8px;
             font-weight: bold;
-            justify-content: center;
-            display: flex;
-            align-items: center;
-            
-}
+            margin-top: 1rem;
+            transition: background-color 0.2s ease;
+        }
+        
         .play-btn:hover {
-             background: #45a049;
-}
-
-        .modal-content {
-            background: white;
-            max-width: 600px;
-            margin: 5% auto;
-            padding: 2rem;
-            border-radius: 20px;
-            position: relative;
-            animation: slideUp 0.3s;
+             background: #4338ca;
         }
-
-        @keyframes slideUp {
-            from { transform: translateY(100px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-
-        .close-modal {
-            position: absolute;
-            top: 1rem;
-            right: 1rem;
-            width: 30px;
-            height: 30px;
-            border: none;
-            background: #ef4444;
-            color: white;
-            border-radius: 50%;
-            cursor: pointer;
-            font-size: 20px;
-            transition: transform 0.3s;
-        }
-
-        .close-modal:hover {
-            transform: rotate(90deg);
-        }
-
-        .quiz-question {
-            font-size: 1.25rem;
-            margin-bottom: 2rem;
-        }
-
-        .quiz-options {
-            display: grid;
-            gap: 1rem;
-        }
-
-        .quiz-option {
-            padding: 1rem;
-            background: #f8fafc;
-            border: 2px solid transparent;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .quiz-option:hover {
-            background: #e0e7ff;
-            border-color: var(--primary);
-            transform: translateX(5px);
-        }
-
-        .quiz-option.selected {
-            background: #dbeafe;
-            border-color: var(--primary);
-        }
-
-        .quiz-option.correct {
-            background: #dcfce7;
-            border-color: var(--secondary);
-            animation: bounce 0.5s;
-        }
-
-        .quiz-option.incorrect {
-            background: #fee2e2;
-            border-color: var(--danger);
-            animation: shake 0.5s;
-        }
-
-        @keyframes bounce {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-        }
-
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-5px); }
-            75% { transform: translateX(5px); }
-        }
-
-        .submit-btn {
-            background: var(--gradient);
-            color: white;
-            border: none;
-            padding: 1rem 2rem;
-            border-radius: 50px;
-            font-size: 1.1rem;
-            cursor: pointer;
-            margin-top: 2rem;
-            width: 100%;
-            transition: all 0.3s;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .submit-btn::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 0;
-            height: 0;
-            background: rgba(255,255,255,0.3);
-            border-radius: 50%;
-            transform: translate(-50%, -50%);
-            transition: width 0.6s, height 0.6s;
-        }
-
-        .submit-btn:hover::before {
-            width: 300px;
-            height: 300px;
-        }
-
-        .submit-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
-        }
-
-        /* Daily Challenges */
-        .challenges-section {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 2rem;
-            margin-top: 2rem;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            animation: fadeInUp 0.6s ease-out 0.5s both;
-        }
-
-        .challenge-timer {
-            text-align: center;
-            font-size: 1.25rem;
-            color: var(--primary);
-            margin-bottom: 1.5rem;
-            font-weight: bold;
-        }
-
-        .challenges-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1rem;
-        }
-
-        .challenge-card {
-            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
-            padding: 1.5rem;
-            border-radius: 15px;
-            text-align: center;
-            color: white;
-            cursor: pointer;
-            transition: all 0.3s;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .challenge-card::after {
-            content: '⚡';
-            position: absolute;
-            top: -20px;
-            right: -20px;
-            font-size: 4rem;
-            opacity: 0.2;
-            transform: rotate(-15deg);
-        }
-
-        .challenge-card:hover {
-            transform: scale(1.05) rotate(-2deg);
-            box-shadow: 0 15px 30px rgba(0,0,0,0.2);
-        }
-
-        .challenge-reward {
-            font-size: 2rem;
-            margin-bottom: 0.5rem;
-        }
-
-        .challenge-title {
-            font-weight: bold;
-            margin-bottom: 0.5rem;
-        }
-
-        /* Leaderboard */
+        
         .leaderboard {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
+            background: #ffffff;
             border-radius: 20px;
             padding: 2rem;
             margin-top: 2rem;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            animation: fadeInUp 0.6s ease-out 0.6s both;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
         }
 
         .leaderboard-list {
@@ -644,28 +272,14 @@
             display: flex;
             align-items: center;
             padding: 1rem;
-            background: #f8fafc;
+            background: var(--light-gray);
             border-radius: 10px;
             margin-bottom: 0.75rem;
-            transition: all 0.3s;
         }
-
-        .leaderboard-item:hover {
-            background: linear-gradient(90deg, #fef3c7, #fef9e7);
-            transform: translateX(5px);
-        }
-
-        .leaderboard-item:nth-child(1) {
-            background: linear-gradient(90deg, #ffd700, #ffed4e);
-        } 
-
-        .leaderboard-item:nth-child(2) {
-            background: linear-gradient(90deg, #c0c0c0, #e5e5e5);
-        }
-
-        .leaderboard-item:nth-child(3) {
-            background: linear-gradient(90deg, #cd7f32, #e4a85d);
-        }
+        
+        .leaderboard-item:nth-child(1) { background: #fefce8; } 
+        .leaderboard-item:nth-child(2) { background: #f1f5f9; }
+        .leaderboard-item:nth-child(3) { background: #fff7ed; }
 
         .rank {
             font-size: 1.5rem;
@@ -683,117 +297,32 @@
             font-weight: bold;
             color: var(--primary);
         }
-
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            .dashboard-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .progress-card {
-                position: static;
-            }
-
-            .subjects-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .user-stats {
-                flex-direction: column;
-                gap: 0.5rem;
-            }
-
-            nav {
-                flex-direction: column;
-                gap: 1rem;
-            }
-        }
-
-        /* Loading Animation */
-        .loading {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(255,255,255,0.3);
-            border-radius: 50%;
-            border-top-color: white;
-            animation: spin 1s ease-in-out infinite;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        /* Success Animation */
-        .success-animation {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 5rem;
-            animation: successPop 0.6s ease-out;
-            z-index: 3000;
-            pointer-events: none;
-        }
-
-        @keyframes successPop {
-            0% { transform: translate(-50%, -50%) scale(0) rotate(0deg); opacity: 1; }
-            50% { transform: translate(-50%, -50%) scale(1.2) rotate(180deg); }
-            100% { transform: translate(-50%, -50%) scale(1) rotate(360deg); opacity: 0; }
-        }
     </style>
 </head>
 <body>
-    <!-- Animated Background -->
-    <div class="bg-animation">
-        <div class="floating-shape shape1"></div>
-        <div class="floating-shape shape2"></div>
-        <div class="floating-shape shape3"></div>
-    </div>
-
-    <!-- Header -->
     <header>
         <nav>
-            <div class="logo">
-                🎮 EduJoy
-            </div>
+            <!-- <div class="logo">🎮 EduJoy</div> -->
             <div class="user-stats">
-                <div class="stat">
-                    <div class="stat-icon">⚡</div>
-                    <span id="points">1,250</span> Points
-                </div>
-                <div class="stat">
-                    <div class="stat-icon">🔥</div>
-                    <span id="streak">7</span> Day Streak
-                </div>
-                <!-- <div class="stat">
-                    <div class="stat-icon">🏆</div>
-                    <span id="badges">12</span> Badges
-                </div> -->
+                <div class="stat"><div class="stat-icon">⚡</div><span id="points">...</span> Points</div>
+                <div class="stat"><div class="stat-icon">🔥</div><span id="streak">...</span> Day Streak</div>
             </div>
         </nav>
     </header>
-
-    <!-- Main Container -->
-     <div class="container">
+    <div class="container">
         <div class="dashboard-grid">
-             <!--Progress Sidebar -->
-            <div class="progress-card">
+            <aside class="progress-card">
                 <div class="level-badge">
-                    <div class="level-number">Level 15</div>
+                    <div class="level-number" id="level">...</div>
                     <div>Knowledge Explorer</div>
                 </div>
-                
                 <div>
                     <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
                         <span>Experience</span>
-                        <span>6,500 / 10,000 XP</span>
+                        <span id="xp-display">... / ... XP</span>
                     </div>
-                    <div class="progress-bar">
-                        <div class="progress-fill"></div>
-                    </div>
+                    <div class="progress-bar"><div class="progress-fill" id="xp-fill"></div></div>
                 </div>
-
                 <div class="achievements">
                     <h3>Recent Achievements</h3>
                     <div class="achievement-grid">
@@ -805,151 +334,174 @@
                         <div class="achievement locked" title="Locked">🔒</div>
                     </div>
                 </div>
-            </div> 
-
-            <!-- Main Content -->
-            <div>
-                <!-- Subject Cards -->
-                 
-                 
+            </aside> 
+            <main>
                  <div class="subjects-grid">
-                    <div class="subject-card" >
+                    <div class="subject-card">
                         <div class="subject-icon">🧙</div>
-                        <div class="subject-title">Physics</div>
+                        <h2 class="subject-title">Physics</h2>
                         <div class="subject-progress">8/12 Lessons Complete</div>
                         <div class="lessons-list">
-                            <div class="lesson-item">
-                                <span>Solar system</span>
-                                <span class="lesson-status">✓</span>
-                            </div>
-                            <div class="lesson-item">
-                                <span>Machines</span>
-                                <span class="lesson-status">✓</span>
-                            </div>
-                              <a href="rocket.html" target="_blank"  class="play-btn">
-                                  Play Now 
-                              </a>
+                            <div class="lesson-item"><span>Solar system</span><span class="lesson-status">✓</span></div>
+                            <div class="lesson-item"><span>Machines</span><span class="lesson-status">✓</span></div>
                         </div>
+                        <a href="rocket.html" class="play-btn">Play Now</a>
                     </div> 
-                   
-                   
-                    <div class="subject-card" >
+                    <div class="subject-card">
                         <div class="subject-icon">📖</div>
-                        <div class="subject-title">English</div>
+                        <h2 class="subject-title">English</h2>
                         <div class="subject-progress">10/15 Lessons Complete</div>
                         <div class="lessons-list">
-                            <div class="lesson-item">
-                                <span>Vocabulary Building</span>
-                                <span class="lesson-status">✓</span>
-                            </div>
-                            <div class="lesson-item">
-                                <span>Grammar Basics</span>
-                                <span class="lesson-status">✓</span>
-                            </div>
-                               <a href="english2.html" target="_blank"  class="play-btn">
-                                  Play Now 
-                              </a>
+                            <div class="lesson-item"><span>Vocabulary Building</span><span class="lesson-status">✓</span></div>
+                            <div class="lesson-item"><span>Grammar Basics</span><span class="lesson-status">✓</span></div>
                         </div>
+                        <a href="english2.html" class="play-btn">Play Now</a>
                     </div>
                      <div class="subject-card">
                         <div class="subject-icon">🔬</div>
-                        <div class="subject-title">Biology</div>
+                        <h2 class="subject-title">Biology</h2>
                         <div class="subject-progress">6/10 Lessons Complete</div>
                         <div class="lessons-list">
-                            <div class="lesson-item">
-                                <span>Living Things</span>
-                                <span class="lesson-status">✓</span>
-                            </div>
-                            <div class="lesson-item">
-                                <span>Human body</span>
-                                <span class="lesson-status">✓</span>
-                            </div>
-                            <a href="biology.html" target="_blank"  class="play-btn">
-                                  Play Now 
-                              </a>
+                            <div class="lesson-item"><span>Living Things</span><span class="lesson-status">✓</span></div>
+                            <div class="lesson-item"><span>Human body</span><span class="lesson-status">✓</span></div>
                         </div>
+                        <a href="biology.html" class="play-btn">Play Now</a>
                     </div>
-
-                        <div class="subject-card" >
+                    <div class="subject-card">
                         <div class="subject-icon">🔢</div>
-                        <div class="subject-title"> Math</div>
-                        <div class="subject-progress">Wanna play</div>
+                        <h2 class="subject-title"> Math</h2>
+                        <div class="subject-progress">Practice your skills</div>
                         <div class="lessons-list">
-                            <div class="lesson-item">
-                                <span>Normal</span>
-                                <span class="lesson-status">✓</span>
-                            </div>
-                        
-                            <div class="lesson-item">
-                                <span>Advanced version </span>
-                                <span class="lesson-status">✓</span>
-                                
-                            </div>
-                              <a href="http://127.0.0.1:5500/index.html" target="_blank" class="play-btn">
-                                  Play Now 
-                              </a>
-
-                           
+                            <div class="lesson-item"><span>Algebra</span><span class="lesson-status">✓</span></div>
+                            <div class="lesson-item"><span>Geometry</span><span class="lesson-status">✓</span></div>
                         </div>
-                    </div>
-
-                    <div class="subject-card">
-                        <div class="subject-icon">🌍</div>
-                        <div class="subject-title">History</div>
-                        <div class="subject-progress">5/8 Lessons Complete</div>
-                        <div class="lessons-list">
-                            <div class="lesson-item">
-                                <span>Our Community</span>
-                                <span class="lesson-status">✓</span>
-                            </div>
-                            <div class="lesson-item">
-                                <span>Maps & Directions</span>
-                                <span class="lesson-status">✓</span>
-                            </div>
-                              <a href="history.html" target="_blank"  class="play-btn">
-                                  Play Now 
-                              </a>
-                        </div>
+                        <a href="index.html" class="play-btn">Play Now</a>
                     </div>
                     <div class="subject-card">
                         <div class="subject-icon">🌍</div>
-                        <div class="subject-title">Geography</div>
+                        <h2 class="subject-title">History</h2>
                         <div class="subject-progress">5/8 Lessons Complete</div>
                         <div class="lessons-list">
-                            <div class="lesson-item">
-                                <span>Our Community</span>
-                                <span class="lesson-status">✓</span>
-                            </div>
-                            <div class="lesson-item">
-                                <span>Maps & Directions</span>
-                                <span class="lesson-status">✓</span>
-                            </div>
-                             <a href="geography.html" target="_blank"  class="play-btn">
-                                  Play Now 
-                              </a>
-                            
+                            <div class="lesson-item"><span>Ancient Civilizations</span><span class="lesson-status">✓</span></div>
+                            <div class="lesson-item"><span>World Wars</span><span class="lesson-status">✓</span></div>
                         </div>
+                        <a href="history.html" class="play-btn">Play Now</a>
                     </div>
-            
-              
-                   
+                    <div class="subject-card">
+                        <div class="subject-icon">🗺️</div>
+                        <h2 class="subject-title">Geography</h2>
+                        <div class="subject-progress">5/8 Lessons Complete</div>
+                        <div class="lessons-list">
+                            <div class="lesson-item"><span>Map Skills</span><span class="lesson-status">✓</span></div>
+                            <div class="lesson-item"><span>World Climates</span><span class="lesson-status">✓</span></div>
+                        </div>
+                        <a href="geography.html" class="play-btn">Play Now</a>
+                    </div>
                 </div>
-                
-
-               
-                <!-- Leaderboard -->
                 <div class="leaderboard">
                     <h2>🏆 Weekly Leaderboard</h2>
                     <div class="leaderboard-list">
-                        <div class="leaderboard-item">
-                            <span class="rank">1</span>
-                            <span class="player-name">Priya S.</span>
-                            <span class="player-points">2,450 pts</span>
-                        </div>
-                        <div class="leaderboard-item">
-                            <span class="rank">2</span>
-                            <span class="player-name">Rahul K.</span>
-                            <span class="player-points">2,320 pts</span>
-                        </div>
-                        <div class="leaderboard-item">
-                            <span class="rank">
+                        <div class="leaderboard-item"><span class="rank">1</span><span class="player-name">Priya S.</span><span class="player-points">2,450 pts</span></div>
+                        <div class="leaderboard-item"><span class="rank">2</span><span class="player-name">Rahul K.</span><span class="player-points">2,320 pts</span></div>
+                        <div class="leaderboard-item"><span class="rank">3</span><span class="player-name">Aarav M.</span><span class="player-points">2,110 pts</span></div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Include the DB Helper Script -->
+    <script src="db.js"></script>
+
+    <script>
+        // --- PWA and IndexedDB Integration ---
+
+        // 1. Register the Service Worker
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(registration => {
+                        console.log('ServiceWorker registration successful with scope: ', registration.scope);
+                    })
+                    .catch(err => {
+                        console.log('ServiceWorker registration failed: ', err);
+                    });
+            });
+        }
+        
+        // 2. Initialize and Use IndexedDB
+        document.addEventListener('DOMContentLoaded', () => {
+            db.init('EduJoyDB', 1)
+              .then(() => {
+                  console.log('Database connection is ready.');
+                  loadUserData();
+                  
+                  // Example of saving data - you would call this when progress changes
+                  // For this example, we'll save it once on load if no data exists.
+                  saveInitialData(); 
+              })
+              .catch(err => console.error('DB Init failed', err));
+        });
+
+        async function loadUserData() {
+            try {
+                const userData = await db.get('userData', 'userProfile');
+                if (userData) {
+                    console.log('Loaded data:', userData);
+                    updateUI(userData);
+                } else {
+                    console.log('No user data found in DB.');
+                    // Set default UI if no data is present
+                    updateUI({ level: 1, points: 0, streak: 0, xp: 0, xp_needed: 100 });
+                }
+            } catch (error) {
+                console.error('Failed to load user data:', error);
+            }
+        }
+        
+        async function saveInitialData() {
+            const existingData = await db.get('userData', 'userProfile');
+            if (!existingData) {
+                const defaultData = {
+                    id: 'userProfile', // This is our key
+                    level: 15,
+                    points: 1250,
+                    streak: 7,
+                    xp: 6500,
+                    xp_needed: 10000
+                };
+                try {
+                    await db.save('userData', defaultData);
+                    console.log('Saved initial user data.');
+                    updateUI(defaultData); // Update UI after saving initial data
+                } catch (error) {
+                    console.error('Failed to save initial data:', error);
+                }
+            }
+        }
+        
+        // This function would be called from your games to update progress
+        async function updateUserProgress(newPoints, newXp) {
+             const userData = await db.get('userData', 'userProfile');
+             if(userData) {
+                userData.points += newPoints;
+                userData.xp += newXp;
+                // Add logic for leveling up, etc. here
+                await db.save('userData', userData);
+                updateUI(userData);
+             }
+        }
+
+        function updateUI(data) {
+            document.getElementById('points').textContent = data.points.toLocaleString();
+            document.getElementById('streak').textContent = data.streak;
+            document.getElementById('level').textContent = `Level ${data.level}`;
+            document.getElementById('xp-display').textContent = `${data.xp.toLocaleString()} / ${data.xp_needed.toLocaleString()} XP`;
+            const xpPercentage = (data.xp / data.xp_needed) * 100;
+            document.getElementById('xp-fill').style.width = `${xpPercentage}%`;
+        }
+
+    </script>
+</body>
+</html>
+

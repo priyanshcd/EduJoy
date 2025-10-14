@@ -1,560 +1,671 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Math Tic-Tac-Toe</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 60vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
-
-        .game-container {
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 20px;
-            padding: 30px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            max-width: 600px;
-            width: 100%;
-        }
-
-        h1 {
-            text-align: center;
-            color: #764ba2;
-            margin-bottom: 15px;
-            font-size: 2.5em;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
-        }
-
-        .equation-display {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            color: white;
-            padding: 20px;
-            border-radius: 15px;
-            margin-bottom: 15px;
-            text-align: center;
-            font-size: 1.5em;
-            font-weight: bold;
-            min-height: 80px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.02); }
-        }
-
-        .player-info {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 20px;
-            gap: 10px;
-        }
-
-        .player-card {
-            flex: 1;
-            padding: 15px;
-            border-radius: 10px;
-            text-align: center;
-            transition: all 0.3s ease;
-        }
-
-        .player-card.active {
-            transform: translateY(-5px);
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
-        }
-
-        .player1 {
-            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-            color: white;
-        }
-
-        .player2 {
-            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
-            color: white;
-        }
-
-        .game-board {
-            display: grid;
-            grid-template-columns: repeat(3, 80fr);
-            gap: 8px;
-            margin-bottom: 20px;
-            background: #e0e0e0;
-            padding: 10px;
-            border-radius: 15px;
-            width: 60%;
-            max-width: 300px;
-            margin-inline: auto ;
-        }
-
-        .cell {
-            width: 80px;
-            height: 80px;
-            aspect-ratio: 1;
-            background: white;
-            border: none;
-            border-radius: 10px;
-            font-size: 1.3em;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            color: #333;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            padding: 4px;
-        
-        }
-
-        .cell:hover:not(.occupied) {
-            background: #f0f0f0;
-            transform: scale(1.05);
-        }
-
-        .cell.occupied {
-            cursor: not-allowed;
-            background: #fafafa;
-        }
-
-        .cell.player1-mark {
-            color: #4facfe;
-            background: linear-gradient(135deg, rgba(79, 172, 254, 0.1) 0%, rgba(0, 242, 254, 0.1) 100%);
-        }
-
-        .cell.player2-mark {
-            color: #fa709a;
-            background: linear-gradient(135deg, rgba(250, 112, 154, 0.1) 0%, rgba(254, 225, 64, 0.1) 100%);
-        }
-
-        .cell.winning {
-            animation: winner 1s ease infinite;
-            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
-        }
-
-        @keyframes winner {
-            0%, 100% { transform: scale(1) rotate(0deg); }
-            25% { transform: scale(1.1) rotate(5deg); }
-            75% { transform: scale(1.1) rotate(-5deg); }
-        }
-
-        .input-section {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-
-        .input-section input {
-            flex: 1;
-            padding: 12px;
-            border: 2px solid #ddd;
-            border-radius: 10px;
-            font-size: 1.1em;
-            transition: border-color 0.3s ease;
-        }
-
-        .input-section input:focus {
-            outline: none;
-            border-color: #764ba2;
-        }
-
-        .input-section button {
-            padding: 12px 30px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-size: 1.1em;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .input-section button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-        }
-
-        .input-section button:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        .feedback {
-            text-align: center;
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            font-weight: bold;
-            font-size: 1.2em;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .feedback.show {
-            opacity: 1;
-        }
-
-        .feedback.correct {
-            background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%);
-            color: #0a5f3a;
-        }
-
-        .feedback.wrong {
-            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
-            color: #8b0000;
-        }
-       .back-btn {
-        display: inline-block;        /* Makes margin-top work */
-        width: 150px;                 
-        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-        color: white;
-        text-align: center;           
-        text-decoration: none;        
-        border: none;
-        padding: 10px 20px;
-        border-radius: 12px;
-        font-size: 16px;
-        cursor: pointer;
-        margin-top: 40px;             /* space from top */
-        margin-left: 20px;            /* optional left spacing */
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Math Tic-Tac-Toe</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
     }
-
+    
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-20px); }
+    }
+    
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+    
+    @keyframes glow {
+      0%, 100% { box-shadow: 0 0 20px rgba(255,255,255,0.3), 0 0 40px rgba(118,75,162,0.2); }
+      50% { box-shadow: 0 0 30px rgba(255,255,255,0.5), 0 0 60px rgba(118,75,162,0.4); }
+    }
+    
+    body { 
+      font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+      background-size: 200% 200%;
+      animation: gradientShift 15s ease infinite;
+      min-height: 100vh; 
+      display: flex; 
+      justify-content: center; 
+      align-items: center; 
+      padding: 20px;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    body::before {
+      content: '';
+      position: absolute;
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+      border-radius: 50%;
+      top: -250px;
+      right: -250px;
+      animation: float 6s ease-in-out infinite;
+      z-index: -1; /* FIX: Pushes the element to the background */
+    }
+    
+    body::after {
+      content: '';
+      position: absolute;
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%);
+      border-radius: 50%;
+      bottom: -200px;
+      left: -200px;
+      animation: float 8s ease-in-out infinite reverse;
+      z-index: -1; /* FIX: Pushes the element to the background */
+    }
+    
+    .game-container { 
+      background: rgba(255,255,255,0.98); 
+      border-radius: 30px; 
+      padding: 40px; 
+      box-shadow: 0 30px 80px rgba(0,0,0,0.4);
+      max-width: 600px; 
+      width: 100%;
+      position: relative;
+      z-index: 1;
+      animation: glow 3s ease-in-out infinite;
+    }
+    
+    h1 { 
+      text-align: center; 
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 20px; 
+      font-size: 3em; 
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+      animation: pulse 2s ease-in-out infinite;
+    }
+    
+    .equation-display { 
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 50%, #fa709a 100%);
+      background-size: 200% 200%;
+      animation: gradientShift 8s ease infinite;
+      color: white; 
+      padding: 25px; 
+      border-radius: 20px; 
+      margin-bottom: 20px; 
+      text-align: center; 
+      font-size: 1.4em; 
+      min-height: 90px; 
+      display: flex; 
+      align-items: center; 
+      justify-content: center; 
+      font-weight: bold;
+      box-shadow: 0 8px 25px rgba(245,87,108,0.4);
+      transition: all 0.3s ease;
+    }
+    
+    .equation-display:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 35px rgba(245,87,108,0.5);
+    }
+    
+    .player-info { 
+      display: flex; 
+      justify-content: space-between; 
+      margin-bottom: 25px; 
+      gap: 15px; 
+    }
+    
+    .player-card { 
+      flex: 1; 
+      padding: 20px; 
+      border-radius: 15px; 
+      text-align: center; 
+      transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .player-card::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 70%);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    
+    .player-card:hover::before {
+      opacity: 1;
+    }
+    
+    .player-card.active { 
+      transform: translateY(-8px) scale(1.05); 
+      box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+    }
+    
+    .player1 { 
+      background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+      box-shadow: 0 8px 20px rgba(79,172,254,0.4);
+      color: white; 
+    }
+    
+    .player2 { 
+      background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+      box-shadow: 0 8px 20px rgba(250,112,154,0.4);
+      color: white; 
+    }
+    
+    .player-card h3 {
+      font-size: 1.3em;
+      margin-bottom: 8px;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+    }
+    
+    .player-card p {
+      font-size: 1.1em;
+      font-weight: bold;
+    }
+    
+    .game-board { 
+      display: grid; 
+      grid-template-columns: repeat(3, 1fr); 
+      gap: 12px; 
+      margin-bottom: 25px; 
+      background: linear-gradient(135deg, #e0e0e0 0%, #f5f5f5 100%);
+      padding: 15px; 
+      border-radius: 20px; 
+      max-width: 350px; 
+      margin-inline: auto;
+      box-shadow: inset 0 4px 10px rgba(0,0,0,0.1);
+    }
+    
+    .cell { 
+      aspect-ratio: 1; 
+      background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+      border: 3px solid transparent;
+      border-radius: 15px; 
+      font-size: 1.8em; 
+      font-weight: bold; 
+      cursor: pointer; 
+      transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+      color: #333; 
+      display: flex; 
+      align-items: center; 
+      justify-content: center; 
+      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .cell::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(118,75,162,0.2) 0%, transparent 70%);
+      transform: translate(-50%, -50%);
+      transition: width 0.6s ease, height 0.6s ease;
+    }
+    
+    .cell:hover:not(.occupied)::before {
+      width: 200%;
+      height: 200%;
+    }
+    
+    .cell:hover:not(.occupied) { 
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      transform: scale(1.1) rotate(5deg);
+      box-shadow: 0 8px 20px rgba(118,75,162,0.4);
+    }
+    
+    .cell.occupied { 
+      cursor: not-allowed;
+    }
+    
+    .cell.player1-mark { 
+      color: #00f2fe; 
+      background: linear-gradient(135deg, rgba(79,172,254,0.2) 0%, rgba(0,242,254,0.2) 100%);
+      border-color: #4facfe;
+      box-shadow: 0 6px 20px rgba(79,172,254,0.3);
+      animation: pulse 1.5s ease-in-out;
+    }
+    
+    .cell.player2-mark { 
+      color: #fa709a; 
+      background: linear-gradient(135deg, rgba(250,112,154,0.2) 0%, rgba(254,225,64,0.2) 100%);
+      border-color: #fa709a;
+      box-shadow: 0 6px 20px rgba(250,112,154,0.3);
+      animation: pulse 1.5s ease-in-out;
+    }
+    
+    .cell.winning { 
+      animation: winner 0.8s ease infinite, glow 2s ease-in-out infinite;
+      background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+      color: #ff6b00;
+      border-color: #ffd700;
+    }
+    
+    @keyframes winner { 
+      0%, 100% { transform: scale(1) rotate(0deg); } 
+      25% { transform: scale(1.15) rotate(10deg); } 
+      75% { transform: scale(1.15) rotate(-10deg); } 
+    }
+    
+    .input-section { 
+      display: flex; 
+      gap: 12px; 
+      margin-bottom: 25px; 
+    }
+    
+    .input-section input { 
+      flex: 1; 
+      padding: 15px; 
+      border: 3px solid #ddd; 
+      border-radius: 15px; 
+      font-size: 1.2em;
+      transition: all 0.3s ease;
+      background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    }
+    
+    .input-section input:focus {
+      outline: none;
+      border-color: #764ba2;
+      box-shadow: 0 0 20px rgba(118,75,162,0.3);
+      transform: translateY(-2px);
+    }
+    
+    .input-section button { 
+      padding: 15px 35px; 
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white; 
+      border: none; 
+      border-radius: 15px; 
+      font-size: 1.2em; 
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 6px 20px rgba(118,75,162,0.4);
+      font-weight: bold;
+    }
+    
+    .input-section button:hover:not(:disabled) {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 30px rgba(118,75,162,0.5);
+    }
+    
+    .input-section button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    
+    .feedback { 
+      text-align: center; 
+      padding: 18px; 
+      border-radius: 15px; 
+      margin-bottom: 25px; 
+      font-weight: bold; 
+      font-size: 1.2em; 
+      opacity: 0;
+      transform: scale(0.8);
+      transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    }
+    
+    .feedback.show { 
+      opacity: 1;
+      transform: scale(1);
+    }
+    
+    .feedback.correct { 
+      background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%);
+      color: #0a5f3a;
+      box-shadow: 0 8px 25px rgba(132,250,176,0.5);
+    }
+    
+    .feedback.wrong { 
+      background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+      color: #8b0000;
+      box-shadow: 0 8px 25px rgba(255,154,158,0.5);
+    }
+    
+    .back-btn { 
+      display: inline-block; 
+      width: auto;
+      padding: 12px 25px;
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      color: white; 
+      text-align: center; 
+      text-decoration: none; 
+      border: none; 
+      border-radius: 15px; 
+      font-size: 18px; 
+      cursor: pointer; 
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      transition: all 0.3s ease;
+      box-shadow: 0 6px 20px rgba(245,87,108,0.4);
+      font-weight: bold;
+      z-index: 1000;
+    }
+    
     .back-btn:hover {
-        background: #e68900;
+      transform: translateY(-3px);
+      box-shadow: 0 10px 30px rgba(245,87,108,0.5);
     }
-
-        .reset-btn {
-            width: 100%;
-            padding: 15px;
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-size: 1.2em;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .reset-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-        }
-
-        .game-over {
-            text-align: center;
-            padding: 20px;
-            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
-            border-radius: 15px;
-            margin-bottom: 20px;
-            color: #333;
-            font-size: 1.5em;
-            font-weight: bold;
-            display: none;
-        }
-
-        .game-over.show {
-            display: block;
-            animation: slideDown 0.5s ease;
-        }
-
-        @keyframes slideDown {
-            from {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-    </style>
+    
+    .reset-btn { 
+      width: 100%; 
+      padding: 18px; 
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      color: white; 
+      border: none; 
+      border-radius: 15px; 
+      font-size: 1.3em; 
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 8px 25px rgba(245,87,108,0.4);
+      font-weight: bold;
+    }
+    
+    .reset-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 35px rgba(245,87,108,0.5);
+    }
+    
+    .game-over { 
+      text-align: center; 
+      padding: 25px; 
+      background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+      border-radius: 20px; 
+      margin-bottom: 25px; 
+      color: #ff6b00; 
+      font-size: 1.5em; 
+      font-weight: bold; 
+      display: none;
+      box-shadow: 0 10px 30px rgba(255,215,0,0.5);
+    }
+    
+    .game-over.show { 
+      display: block; 
+      animation: slideDown 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    }
+    
+    @keyframes slideDown { 
+      from { opacity: 0; transform: translateY(-30px) scale(0.8); } 
+      to { opacity: 1; transform: translateY(0) scale(1); } 
+    }
+  </style>
 </head>
 <body>
-            <a href="game.html" class="back-btn">
-            ⬅ Back to Home
-            </a>
+  <a href="game.html" class="back-btn">⬅ Back to Home</a>
 
-    <div class="game-container">
-        <h1>🧮 Math Tic-Tac-Toe </h1>
-        
-        <div class="equation-display" id="equationDisplay">
-            Click on a cell to start!
-        </div>
+  <div class="game-container">
+    <h1>🧮 Math Tic-Tac-Toe</h1>
 
-        <div class="player-info">
-            <div class="player-card player1" id="player1Card">
-                <h3>Player 1</h3>
-                <p>Score: <span id="player1Score">0</span></p>
-            </div>
-            <div class="player-card player2" id="player2Card">
-                <h3>Player 2</h3>
-                <p>Score: <span id="player2Score">0</span></p>
-            </div>
-        </div>
-        <!-- <a href="game.html" class="back-btn">
-            <i class="bi bi-arrow-left-circle-fill"></i> Back to Home
-           
-            </a> -->
+    <div class="equation-display" id="equationDisplay">Click on a cell to start!</div>
 
-
-        <div class="game-board" id="gameBoard">
-            <button class="cell" data-index="0"></button>
-            <button class="cell" data-index="1"></button>
-            <button class="cell" data-index="2"></button>
-            <button class="cell" data-index="3"></button>
-            <button class="cell" data-index="4"></button>
-            <button class="cell" data-index="5"></button>
-            <button class="cell" data-index="6"></button>
-            <button class="cell" data-index="7"></button>
-            <button class="cell" data-index="8"></button>
-        </div>
-
-        <div class="input-section">
-            <input type="number" id="answerInput" placeholder="Enter the root of the equation" step="any">
-            <button id="submitBtn" disabled>Submit Answer</button>
-        </div>
-
-        <div class="feedback" id="feedback"></div>
-        <div class="game-over" id="gameOver"></div>
-
-        <button class="reset-btn" onclick="resetGame()"> New Game</button>
+    <div class="player-info">
+      <div class="player-card player1" id="player1Card"><h3>Player 1</h3><p>Score: <span id="player1Score">0</span></p></div>
+      <div class="player-card player2" id="player2Card"><h3>Player 2</h3><p>Score: <span id="player2Score">0</span></p></div>
     </div>
 
-    <script>
-        // Pre-defined equations with their roots
-        const equations = [
-            { equation: "x + 5 = -5", roots: [-10], type: "linear" },
-            { equation: "2x - 8 = 0", roots: [4], type: "linear" },
-            { equation: "3x + 6 = 0", roots: [-2], type: "linear" },
-            { equation: "x - 7 = 3", roots: [10], type: "linear" },
-            { equation: "4x = 16", roots: [4], type: "linear" },
-            { equation: "x/2 = 6", roots: [12], type: "linear" },
-            { equation: "5x + 10 = 0", roots: [-2], type: "linear" },
-            { equation: "x - 9 = -3", roots: [6], type: "linear" },
-            { equation: "2x + 14 = 20", roots: [3], type: "linear" },
-            { equation: "3x - 15 = 0", roots: [5], type: "linear" },
-            { equation: "x² - 9 = 0", roots: [3, -3], type: "quadratic" },
-            { equation: "x² - 16 = 0", roots: [4, -4], type: "quadratic" },
-            { equation: "x² - 25 = 0", roots: [5, -5], type: "quadratic" },
-            { equation: "x² - 4 = 0", roots: [2, -2], type: "quadratic" },
-            { equation: "x² - 36 = 0", roots: [6, -6], type: "quadratic" },
-            { equation: "x² - 49 = 0", roots: [7, -7], type: "quadratic" },
-            { equation: "x² - 64 = 0", roots: [8, -8], type: "quadratic" },
-            { equation: "x² - 81 = 0", roots: [9, -9], type: "quadratic" },
-            { equation: "x² - 100 = 0", roots: [10, -10], type: "quadratic" },
-            { equation: "x² - 1 = 0", roots: [1, -1], type: "quadratic" }
-        ];
+    <div class="game-board" id="gameBoard">
+      <button class="cell" data-index="0"></button>
+      <button class="cell" data-index="1"></button>
+      <button class="cell" data-index="2"></button>
+      <button class="cell" data-index="3"></button>
+      <button class="cell" data-index="4"></button>
+      <button class="cell" data-index="5"></button>
+      <button class="cell" data-index="6"></button>
+      <button class="cell" data-index="7"></button>
+      <button class="cell" data-index="8"></button>
+    </div>
 
-        let gameState = {
-            board: Array(9).fill(null),
-            currentPlayer: 1,
-            selectedCell: null,
-            currentEquation: null,
-            gameActive: true,
-            scores: { player1: 0, player2: 0 }
-        };
+    <div class="input-section">
+      <input type="number" id="answerInput" placeholder="Enter the root of the equation" step="any" disabled>
+      <button id="submitBtn" disabled>Submit Answer</button>
+    </div>
 
-        const cells = document.querySelectorAll('.cell');
-        const equationDisplay = document.getElementById('equationDisplay');
-        const answerInput = document.getElementById('answerInput');
-        const submitBtn = document.getElementById('submitBtn');
-        const feedback = document.getElementById('feedback');
-        const gameOver = document.getElementById('gameOver');
-        const player1Card = document.getElementById('player1Card');
-        const player2Card = document.getElementById('player2Card');
+    <div class="feedback" id="feedback"></div>
+    <div class="game-over" id="gameOver"></div>
 
-        // Initialize game
-        function init() {
-            cells.forEach(cell => {
-                cell.addEventListener('click', handleCellClick);
-            });
-            submitBtn.addEventListener('click', handleSubmit);
-            answerInput.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter' && !submitBtn.disabled) {
-                    handleSubmit();
-                }
-            });
-            updatePlayerDisplay();
+    <button class="reset-btn" onclick="resetGame()">New Game</button>
+  </div>
+
+  <script>
+    // equations (unchanged)
+    const equations = [
+      { equation: "x + 5 = 10", roots: [5], type: "linear" },
+      { equation: "2x - 8 = 0", roots: [4], type: "linear" },
+      { equation: "3x + 6 = 0", roots: [-2], type: "linear" },
+      { equation: "x - 7 = 3", roots: [10], type: "linear" },
+      { equation: "4x = 16", roots: [4], type: "linear" },
+      { equation: "x/2 = 6", roots: [12], type: "linear" },
+      { equation: "5x + 10 = 0", roots: [-2], type: "linear" },
+      { equation: "x - 9 = -3", roots: [6], type: "linear" },
+      { equation: "2x + 14 = 20", roots: [3], type: "linear" },
+      { equation: "3x - 15 = 0", roots: [5], type: "linear" },
+      { equation: "x² - 9 = 0", roots: [3, -3], type: "quadratic" },
+      { equation: "x² - 16 = 0", roots: [4, -4], type: "quadratic" },
+      { equation: "x² - 25 = 0", roots: [5, -5], type: "quadratic" },
+      { equation: "x² - 4 = 0", roots: [2, -2], type: "quadratic" },
+      { equation: "x² - 36 = 0", roots: [6, -6], type: "quadratic" },
+      { equation: "x² - 49 = 0", roots: [7, -7], type: "quadratic" },
+      { equation: "x² - 64 = 0", roots: [8, -8], type: "quadratic" },
+      { equation: "x² - 81 = 0", roots: [9, -9], type: "quadratic" },
+      { equation: "x² - 100 = 0", roots: [10, -10], type: "quadratic" },
+      { equation: "x² - 1 = 0", roots: [1, -1], type: "quadratic" }
+    ];
+
+    let gameState = {
+      // board now holds either null or { player: 1|2, value: number }
+      board: Array(9).fill(null),
+      currentPlayer: 1,
+      selectedCell: null,
+      currentEquation: null,
+      gameActive: true,
+      scores: { player1: 0, player2: 0 }
+    };
+
+    const cells = document.querySelectorAll('.cell');
+    const equationDisplay = document.getElementById('equationDisplay');
+    const answerInput = document.getElementById('answerInput');
+    const submitBtn = document.getElementById('submitBtn');
+    const feedback = document.getElementById('feedback');
+    const gameOver = document.getElementById('gameOver');
+    const player1Card = document.getElementById('player1Card');
+    const player2Card = document.getElementById('player2Card');
+
+    function init() {
+      cells.forEach(cell => {
+        cell.addEventListener('click', handleCellClick);
+      });
+      submitBtn.addEventListener('click', handleSubmit);
+      answerInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter' && !submitBtn.disabled) handleSubmit();
+      });
+      updatePlayerDisplay();
+    }
+
+    function handleCellClick(e) {
+      const index = parseInt(e.target.dataset.index, 10);
+
+      if (!gameState.gameActive || gameState.board[index] !== null) return;
+
+      gameState.selectedCell = index;
+
+      // pick random equation
+      const randomIndex = Math.floor(Math.random() * equations.length);
+      gameState.currentEquation = equations[randomIndex];
+
+      equationDisplay.textContent = `Solve: ${gameState.currentEquation.equation}`;
+      answerInput.disabled = false;
+      submitBtn.disabled = false;
+      answerInput.value = '';
+      answerInput.focus();
+
+      // highlight selected cell
+      cells.forEach(c => c.style.border = '3px solid transparent');
+      e.target.style.border = '3px solid #764ba2';
+    }
+
+    function handleSubmit() {
+      const answerRaw = answerInput.value;
+      const answer = parseFloat(answerRaw);
+
+      if (isNaN(answer)) {
+        showFeedback('Please enter a valid number!', false);
+        return;
+      }
+
+      // compare numeric equality — roots are numbers
+      const isCorrect = gameState.currentEquation && gameState.currentEquation.roots.includes(answer);
+
+      if (isCorrect) {
+        // store both player and value
+        const idx = gameState.selectedCell;
+        gameState.board[idx] = { player: gameState.currentPlayer, value: answer };
+
+        // update cell visuals
+        const cell = cells[idx];
+        cell.textContent = answer;
+        cell.classList.add('occupied');
+        cell.classList.add(`player${gameState.currentPlayer}-mark`);
+        cell.disabled = true; // prevent further clicks
+
+        showFeedback('Correct! Well done! 🎉', true);
+
+        // check win (requires same player ownership)
+        if (checkWin()) {
+          gameState.scores[`player${gameState.currentPlayer}`]++;
+          updateScores();
+          endGame(`Player ${gameState.currentPlayer} wins! 🏆`);
+        } else if (checkDraw()) {
+          endGame("It's a draw! 🤝");
+        } else {
+          // switch player
+          gameState.currentPlayer = gameState.currentPlayer === 1 ? 2 : 1;
+          updatePlayerDisplay();
         }
+      } else {
+        // wrong answer — reveal expected roots
+        showFeedback(`Wrong! The correct answer was one of: ${gameState.currentEquation.roots.join(' or ')}`, false);
+        // switch player on wrong
+        gameState.currentPlayer = gameState.currentPlayer === 1 ? 2 : 1;
+        updatePlayerDisplay();
+      }
 
-        function handleCellClick(e) {
-            const index = parseInt(e.target.dataset.index);
-            
-            if (!gameState.gameActive || gameState.board[index] !== null) {
-                return;
-            }
+      // clean up input / UI state
+      answerInput.value = '';
+      answerInput.disabled = true;
+      submitBtn.disabled = true;
+      cells.forEach(c => c.style.border = '3px solid transparent');
 
-            gameState.selectedCell = index;
-            
-            // Generate random equation
-            const randomIndex = Math.floor(Math.random() * equations.length);
-            gameState.currentEquation = equations[randomIndex];
-            
-            // Display equation
-            equationDisplay.textContent = `Solve: ${gameState.currentEquation.equation}`;
-            equationDisplay.style.animation = 'pulse 2s infinite';
-            
-            // Enable input
-            answerInput.disabled = false;
-            submitBtn.disabled = false;
-            answerInput.focus();
-            answerInput.value = '';
-            
-            // Highlight selected cell
-            cells.forEach(c => c.style.border = 'none');
-            e.target.style.border = '3px solid #764ba2';
+      if (gameState.gameActive && !isCorrect) {
+        equationDisplay.textContent = `Player ${gameState.currentPlayer}'s turn - Click a cell!`;
+      }
+    }
+
+    function checkWin() {
+      const winPatterns = [
+        [0,1,2],[3,4,5],[6,7,8],
+        [0,3,6],[1,4,7],[2,5,8],
+        [0,4,8],[2,4,6]
+      ];
+
+      for (const pattern of winPatterns) {
+        const [a,b,c] = pattern;
+        const A = gameState.board[a];
+        const B = gameState.board[b];
+        const C = gameState.board[c];
+
+        // require existence AND same player
+        if (A && B && C && A.player === B.player && B.player === C.player) {
+          // highlight
+          cells[a].classList.add('winning');
+          cells[b].classList.add('winning');
+          cells[c].classList.add('winning');
+          return true;
         }
+      }
+      return false;
+    }
 
-        function handleSubmit() {
-            const answer = parseFloat(answerInput.value);
-            
-            if (isNaN(answer)) {
-                showFeedback('Please enter a valid number!', false);
-                return;
-            }
+    function checkDraw() {
+      return gameState.board.every(cell => cell !== null);
+    }
 
-            const isCorrect = gameState.currentEquation.roots.includes(answer);
-            
-            if (isCorrect) {
-                // Place mark in cell
-                gameState.board[gameState.selectedCell] = answer;
-                const cell = cells[gameState.selectedCell];
-                cell.textContent = answer;
-                cell.classList.add('occupied');
-                cell.classList.add(`player${gameState.currentPlayer}-mark`);
-                
-                showFeedback('Correct! Well done! 🎉', true);
-                
-                // Check for win
-                if (checkWin()) {
-                    endGame(`Player ${gameState.currentPlayer} wins! 🏆`);
-                    gameState.scores[`player${gameState.currentPlayer}`]++;
-                    updateScores();
-                } else if (checkDraw()) {
-                    endGame("It's a draw! 🤝");
-                } else {
-                    // Switch player
-                    gameState.currentPlayer = gameState.currentPlayer === 1 ? 2 : 1;
-                    updatePlayerDisplay();
-                }
-            } else {
-                showFeedback(`Wrong! The correct answer was one of: ${gameState.currentEquation.roots.join(' or ')}`, false);
-                // Switch player on wrong answer
-                gameState.currentPlayer = gameState.currentPlayer === 1 ? 2 : 1;
-                updatePlayerDisplay();
-            }
-            
-            // Reset input
-            answerInput.value = '';
-            answerInput.disabled = true;
-            submitBtn.disabled = true;
-            cells.forEach(c => c.style.border = 'none');
-            
-            if (gameState.gameActive && !isCorrect) {
-                equationDisplay.textContent = `Player ${gameState.currentPlayer}'s turn - Click a cell!`;
-            }
-        }
+    function showFeedback(message, isCorrect) {
+      feedback.textContent = message;
+      feedback.className = 'feedback show ' + (isCorrect ? 'correct' : 'wrong');
+      setTimeout(() => feedback.classList.remove('show'), 3000);
+    }
 
-        function checkWin() {
-            const winPatterns = [
-                [0, 1, 2], [3, 4, 5], [6, 7, 8], // Rows
-                [0, 3, 6], [1, 4, 7], [2, 5, 8], // Columns
-                [0, 4, 8], [2, 4, 6] // Diagonals
-            ];
+    function updatePlayerDisplay() {
+      if (gameState.currentPlayer === 1) {
+        player1Card.classList.add('active');
+        player2Card.classList.remove('active');
+      } else {
+        player1Card.classList.remove('active');
+        player2Card.classList.add('active');
+      }
 
-            for (const pattern of winPatterns) {
-                const [a, b, c] = pattern;
-                if (gameState.board[a] !== null && 
-                    gameState.board[b] !== null && 
-                    gameState.board[c] !== null) {
-                    // Highlight winning cells
-                    cells[a].classList.add('winning');
-                    cells[b].classList.add('winning');
-                    cells[c].classList.add('winning');
-                    return true;
-                }
-            }
-            return false;
-        }
+      if (gameState.gameActive) {
+        equationDisplay.textContent = `Player ${gameState.currentPlayer}'s turn - Click a cell!`;
+      }
+    }
 
-        function checkDraw() {
-            return gameState.board.every(cell => cell !== null);
-        }
+    function updateScores() {
+      document.getElementById('player1Score').textContent = gameState.scores.player1;
+      document.getElementById('player2Score').textContent = gameState.scores.player2;
+    }
 
-        function showFeedback(message, isCorrect) {
-            feedback.textContent = message;
-            feedback.className = 'feedback show ' + (isCorrect ? 'correct' : 'wrong');
-            setTimeout(() => {
-                feedback.classList.remove('show');
-            }, 3000);
-        }
+    function endGame(message) {
+      gameState.gameActive = false;
+      gameOver.textContent = message;
+      gameOver.classList.add('show');
+      equationDisplay.textContent = 'Game Over!';
+    }
 
-        function updatePlayerDisplay() {
-            if (gameState.currentPlayer === 1) {
-                player1Card.classList.add('active');
-                player2Card.classList.remove('active');
-            } else {
-                player1Card.classList.remove('active');
-                player2Card.classList.add('active');
-            }
-            
-            if (gameState.gameActive) {
-                equationDisplay.textContent = `Player ${gameState.currentPlayer}'s turn - Click a cell!`;
-            }
-        }
+    function resetGame() {
+      gameState.board = Array(9).fill(null);
+      gameState.currentPlayer = 1;
+      gameState.selectedCell = null;
+      gameState.currentEquation = null;
+      gameState.gameActive = true;
 
-        function updateScores() {
-            document.getElementById('player1Score').textContent = gameState.scores.player1;
-            document.getElementById('player2Score').textContent = gameState.scores.player2;
-        }
+      cells.forEach(cell => {
+        cell.textContent = '';
+        cell.className = 'cell';
+        cell.style.border = '3px solid transparent';
+        cell.disabled = false;
+      });
 
-        function endGame(message) {
-            gameState.gameActive = false;
-            gameOver.textContent = message;
-            gameOver.classList.add('show');
-            equationDisplay.textContent = 'Game Over!';
-        }
+      gameOver.classList.remove('show');
+      feedback.classList.remove('show');
+      answerInput.value = '';
+      answerInput.disabled = true;
+      submitBtn.disabled = true;
 
-        function resetGame() {
-            gameState.board = Array(9).fill(null);
-            gameState.currentPlayer = 1;
-            gameState.selectedCell = null;
-            gameState.currentEquation = null;
-            gameState.gameActive = true;
-            
-            cells.forEach(cell => {
-                cell.textContent = '';
-                cell.className = 'cell';
-                cell.style.border = 'none';
-            });
-            
-            gameOver.classList.remove('show');
-            feedback.classList.remove('show');
-            answerInput.value = '';
-            answerInput.disabled = true;
-            submitBtn.disabled = true;
-            
-            updatePlayerDisplay();
-        }
+      updatePlayerDisplay();
+    }
 
-        // Start the game
-        init();
-    </script>
+    // start
+    init();
+  </script>
 </body>
 </html>
