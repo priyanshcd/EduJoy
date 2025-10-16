@@ -4,18 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EduJoy - Gamified Learning</title>
-    <!-- Link to the Web App Manifest -->
     <link rel="manifest" href="manifest.json">
-    <!-- Add the Favicon link here -->
     <link rel="icon" type="image/png" href="favicon.png">
     <meta name="theme-color" content="#4f46e5">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
         :root {
             --primary: #4f46e5;
             --secondary: #22c55e;
@@ -25,13 +17,16 @@
             --text-dark: #1e293b;
             --text-light: #64748b;
         }
-
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
         body {
             font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
             background-color: var(--light-gray);
             color: var(--text-dark);
         }
-
         header {
             background: #ffffff;
             padding: 1rem 2rem;
@@ -40,21 +35,23 @@
             top: 0;
             z-index: 1000;
         }
-
         nav {
             display: flex;
-            justify-content: space-between;
             align-items: center;
+            justify-content: space-between; /* Ensures items are spaced apart */
             max-width: 1300px;
             margin: 0 auto;
         }
-
         .logo {
             font-size: 1.5rem;
             font-weight: bold;
             color: var(--primary);
         }
-
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
         .user-stats {
             display: flex;
             gap: 2rem;
@@ -64,13 +61,11 @@
             border-radius: 50px;
             color: #4338ca;
         }
-
         .stat {
             display: flex;
             align-items: center;
             gap: 0.5rem;
         }
-
         .stat-icon {
             width: 24px;
             height: 24px;
@@ -80,20 +75,29 @@
             background: rgba(79, 70, 229, 0.1);
             border-radius: 50%;
         }
-
+        .profile-btn {
+            background: #eef2ff;
+            color: var(--primary);
+            text-decoration: none;
+            padding: 0.6rem 1.2rem;
+            border-radius: 50px;
+            font-weight: 600;
+            transition: background-color 0.2s;
+        }
+        .profile-btn:hover {
+            background-color: #e0e7ff;
+        }
         .container {
             max-width: 1400px;
             margin: 2rem auto;
             padding: 0 2rem;
         }
-
         .dashboard-grid {
             display: grid;
             grid-template-columns: 300px 1fr;
             gap: 2rem;
             margin-top: 2rem;
         }
-
         .progress-card {
             background: #ffffff;
             border-radius: 20px;
@@ -103,18 +107,15 @@
             top: 100px;
             height: fit-content;
         }
-
         .level-badge {
             text-align: center;
             margin-bottom: 2rem;
         }
-
         .level-number {
             font-size: 3rem;
             font-weight: bold;
             color: var(--primary);
         }
-
         .progress-bar {
             background: var(--medium-gray);
             height: 20px;
@@ -122,25 +123,21 @@
             overflow: hidden;
             margin: 1rem 0;
         }
-
         .progress-fill {
             height: 100%;
             background-color: var(--secondary);
             border-radius: 10px;
             width: 65%;
         }
-
         .achievements {
             margin-top: 2rem;
         }
-
         .achievement-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 1rem;
             margin-top: 1rem;
         }
-
         .achievement {
             aspect-ratio: 1;
             background-color: #eef2ff;
@@ -153,23 +150,19 @@
             cursor: pointer;
             transition: transform 0.2s ease;
         }
-        
         .achievement:hover {
             transform: scale(1.1);
         }
-
         .achievement.locked {
             background: var(--medium-gray);
             color: var(--text-light);
             opacity: 0.7;
         }
-
         .subjects-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
             gap: 2rem;
         }
-
         .subject-card {
             background: #ffffff;
             border-radius: 20px;
@@ -177,12 +170,10 @@
             box-shadow: 0 4px 12px rgba(0,0,0,0.05);
             transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
-        
         .subject-card:hover {
             transform: translateY(-5px);
             box-shadow: 0 8px 20px rgba(0,0,0,0.08);
         }
-
         .subject-icon {
             width: 80px;
             height: 80px;
@@ -195,24 +186,20 @@
             color: var(--primary);
             border-radius: 20px;
         }
-
         .subject-title {
             font-size: 1.5rem;
             font-weight: bold;
             margin-bottom: 0.5rem;
             text-align: center;
         }
-
         .subject-progress {
             text-align: center;
             color: var(--text-light);
             margin-bottom: 1rem;
         }
-
         .lessons-list {
             margin-top: 1rem;
         }
-
         .lesson-item {
             padding: 0.75rem;
             background: var(--light-gray);
@@ -222,7 +209,6 @@
             justify-content: space-between;
             align-items: center;
         }
-
         .lesson-status {
             width: 24px;
             height: 24px;
@@ -234,11 +220,9 @@
             color: white;
             font-size: 14px;
         }
-
         .lesson-status.locked {
             background: var(--medium-gray);
         }
-
         .play-btn {
             display: block;
             text-align: center;
@@ -251,11 +235,9 @@
             margin-top: 1rem;
             transition: background-color 0.2s ease;
         }
-        
         .play-btn:hover {
              background: #4338ca;
         }
-        
         .leaderboard {
             background: #ffffff;
             border-radius: 20px;
@@ -263,11 +245,9 @@
             margin-top: 2rem;
             box-shadow: 0 4px 12px rgba(0,0,0,0.05);
         }
-
         .leaderboard-list {
             margin-top: 1.5rem;
         }
-
         .leaderboard-item {
             display: flex;
             align-items: center;
@@ -276,23 +256,19 @@
             border-radius: 10px;
             margin-bottom: 0.75rem;
         }
-        
         .leaderboard-item:nth-child(1) { background: #fefce8; } 
         .leaderboard-item:nth-child(2) { background: #f1f5f9; }
         .leaderboard-item:nth-child(3) { background: #fff7ed; }
-
         .rank {
             font-size: 1.5rem;
             font-weight: bold;
             margin-right: 1rem;
             width: 40px;
         }
-
         .player-name {
             flex: 1;
             font-weight: 500;
         }
-
         .player-points {
             font-weight: bold;
             color: var(--primary);
@@ -302,10 +278,13 @@
 <body>
     <header>
         <nav>
-            <!-- <div class="logo">🎮 EduJoy</div> -->
-            <div class="user-stats">
-                <div class="stat"><div class="stat-icon">⚡</div><span id="points">...</span> Points</div>
-                <div class="stat"><div class="stat-icon">🔥</div><span id="streak">...</span> Day Streak</div>
+            <div class="logo">🎮 EduJoy</div>
+            <div class="header-controls">
+                <div class="user-stats">
+                    <div class="stat"><div class="stat-icon">⚡</div><span id="points">...</span> Points</div>
+                    <div class="stat"><div class="stat-icon">🔥</div><span id="streak">...</span> Day Streak</div>
+                </div>
+                <a href="profile.html" class="profile-btn">My Dashboard</a>
             </div>
         </nav>
     </header>
@@ -409,35 +388,82 @@
             </main>
         </div>
     </div>
-
-    <!-- Include the DB Helper Script -->
-    <script src="db.js"></script>
-
+    
     <script>
-        // --- PWA and IndexedDB Integration ---
+        // --- DB Helper Object ---
+        const db = {
+            _db: null,
+            init(dbName, version) {
+                return new Promise((resolve, reject) => {
+                    const request = indexedDB.open(dbName, version);
 
-        // 1. Register the Service Worker
+                    request.onupgradeneeded = (event) => {
+                        const dbInstance = event.target.result;
+                        if (!dbInstance.objectStoreNames.contains('userData')) {
+                            dbInstance.createObjectStore('userData', { keyPath: 'id' });
+                        }
+                        if (!dbInstance.objectStoreNames.contains('subjectScores')) {
+                            dbInstance.createObjectStore('subjectScores', { keyPath: 'id' });
+                        }
+                    };
+
+                    request.onsuccess = (event) => {
+                        this._db = event.target.result;
+                        resolve();
+                    };
+
+                    request.onerror = (event) => {
+                        console.error('Database error:', event.target.error);
+                        reject(event.target.error);
+                    };
+                });
+            },
+            save(storeName, data) {
+                return new Promise((resolve, reject) => {
+                    if (!this._db) return reject('DB not initialized');
+                    const transaction = this._db.transaction(storeName, 'readwrite');
+                    const store = transaction.objectStore(storeName);
+                    const request = store.put(data);
+                    request.onsuccess = () => resolve(request.result);
+                    request.onerror = () => reject(request.error);
+                });
+            },
+            get(storeName, id) {
+                return new Promise((resolve, reject) => {
+                    if (!this._db) return reject('DB not initialized');
+                    const transaction = this._db.transaction(storeName, 'readonly');
+                    const store = transaction.objectStore(storeName);
+                    const request = store.get(id);
+                    request.onsuccess = () => resolve(request.result);
+                    request.onerror = () => reject(request.error);
+                });
+            },
+            getAll(storeName) {
+                return new Promise((resolve, reject) => {
+                    if (!this._db) return reject('DB not initialized');
+                    const transaction = this._db.transaction(storeName, 'readonly');
+                    const store = transaction.objectStore(storeName);
+                    const request = store.getAll();
+                    request.onsuccess = () => resolve(request.result);
+                    request.onerror = () => reject(request.error);
+                });
+            }
+        };
+
+        // --- PWA and IndexedDB Integration ---
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('/sw.js')
-                    .then(registration => {
-                        console.log('ServiceWorker registration successful with scope: ', registration.scope);
-                    })
-                    .catch(err => {
-                        console.log('ServiceWorker registration failed: ', err);
-                    });
+                    .then(reg => console.log('ServiceWorker registration successful.'))
+                    .catch(err => console.log('ServiceWorker registration failed: ', err));
             });
         }
-        
-        // 2. Initialize and Use IndexedDB
+
         document.addEventListener('DOMContentLoaded', () => {
             db.init('EduJoyDB', 1)
               .then(() => {
                   console.log('Database connection is ready.');
                   loadUserData();
-                  
-                  // Example of saving data - you would call this when progress changes
-                  // For this example, we'll save it once on load if no data exists.
                   saveInitialData(); 
               })
               .catch(err => console.error('DB Init failed', err));
@@ -447,49 +473,36 @@
             try {
                 const userData = await db.get('userData', 'userProfile');
                 if (userData) {
-                    console.log('Loaded data:', userData);
                     updateUI(userData);
                 } else {
-                    console.log('No user data found in DB.');
-                    // Set default UI if no data is present
                     updateUI({ level: 1, points: 0, streak: 0, xp: 0, xp_needed: 100 });
                 }
             } catch (error) {
                 console.error('Failed to load user data:', error);
             }
         }
-        
+
         async function saveInitialData() {
             const existingData = await db.get('userData', 'userProfile');
             if (!existingData) {
                 const defaultData = {
-                    id: 'userProfile', // This is our key
+                    id: 'userProfile',
                     level: 15,
                     points: 1250,
                     streak: 7,
                     xp: 6500,
-                    xp_needed: 10000
+                    xp_needed: 10000,
+                    name: 'Student'
                 };
                 try {
                     await db.save('userData', defaultData);
-                    console.log('Saved initial user data.');
-                    updateUI(defaultData); // Update UI after saving initial data
+                    updateUI(defaultData);
                 } catch (error) {
                     console.error('Failed to save initial data:', error);
                 }
+            } else {
+                loadUserData();
             }
-        }
-        
-        // This function would be called from your games to update progress
-        async function updateUserProgress(newPoints, newXp) {
-             const userData = await db.get('userData', 'userProfile');
-             if(userData) {
-                userData.points += newPoints;
-                userData.xp += newXp;
-                // Add logic for leveling up, etc. here
-                await db.save('userData', userData);
-                updateUI(userData);
-             }
         }
 
         function updateUI(data) {
@@ -500,7 +513,6 @@
             const xpPercentage = (data.xp / data.xp_needed) * 100;
             document.getElementById('xp-fill').style.width = `${xpPercentage}%`;
         }
-
     </script>
 </body>
 </html>

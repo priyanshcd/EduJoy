@@ -1,61 +1,68 @@
-    // A simple helper library for IndexedDB
-    const db = {
-      instance: null,
-
-      init(dbName, version) {
+const db = {
+    _db: null,
+    init(dbName, version) {
         return new Promise((resolve, reject) => {
-          const request = indexedDB.open(dbName, version);
+            const request = indexedDB.open(dbName, version);
 
-          request.onupgradeneeded = (event) => {
-            const dbInstance = event.target.result;
-            // Create an object store for user data if it doesn't exist.
-            // We'll use 'id' as the key path.
-            if (!dbInstance.objectStoreNames.contains('userData')) {
-              dbInstance.createObjectStore('userData', { keyPath: 'id' });
-            }
-          };
+            request.onupgradeneeded = (event) => {
+                this._db = event.target.result;
+                // Store for general user profile (level, total points, etc.)
+                if (!this._db.objectStoreNames.contains('userData')) {
+                    this._db.createObjectStore('userData', { keyPath: 'id' });
+                }
+                // NEW: Store for subject-specific scores
+                if (!this._db.objectStoreNames.contains('subjectScores')) {
+                    this._db.createObjectStore('subjectScores', { keyPath: 'id' });
+                }
+            };
 
-          request.onsuccess = (event) => {
-            this.instance = event.target.result;
-            console.log('Database initialized successfully.');
-            resolve(this.instance);
-          };
+            request.onsuccess = (event) => {
+                this._db = event.target.result;
+                resolve();
+            };
 
-          request.onerror = (event) => {
-            console.error('Database error:', event.target.errorCode);
-            reject(event.target.errorCode);
-          };
+            request.onerror = (event) => {
+                console.error('Database error:', event.target.error);
+                reject(event.target.error);
+            };
         });
-      },
+    },
 
-      save(storeName, data) {
+    save(storeName, data) {
         return new Promise((resolve, reject) => {
-          if (!this.instance) {
-            reject('Database not initialized.');
-            return;
-          }
-          const transaction = this.instance.transaction([storeName], 'readwrite');
-          const store = transaction.objectStore(storeName);
-          const request = store.put(data); // 'put' will add or update the record
+            if (!this._db) return reject('DB not initialized');
+            const transaction = this._db.transaction(storeName, 'readwrite');
+            const store = transaction.objectStore(storeName);
+            const request = store.put(data);
 
-          request.onsuccess = () => resolve(request.result);
-          request.onerror = (event) => reject(event.target.error);
+            request.onsuccess = () => resolve(request.result);
+            request.onerror = () => reject(request.error);
         });
-      },
+    },
 
-      get(storeName, key) {
+    get(storeName, id) {
         return new Promise((resolve, reject) => {
-          if (!this.instance) {
-            reject('Database not initialized.');
-            return;
-          }
-          const transaction = this.instance.transaction([storeName], 'readonly');
-          const store = transaction.objectStore(storeName);
-          const request = store.get(key);
+            if (!this._db) return reject('DB not initialized');
+            const transaction = this._db.transaction(storeName, 'readonly');
+            const store = transaction.objectStore(storeName);
+            const request = store.get(id);
 
-          request.onsuccess = () => resolve(request.result);
-          request.onerror = (event) => reject(event.target.error);
+            request.onsuccess = () => resolve(request.result);
+            request.onerror = () => reject(request.error);
         });
-      }
-    };
+    },
     
+    // NEW: Function to get all records from a store
+    getAll(storeName) {
+        return new Promise((resolve, reject) => {
+            if (!this._db) return reject('DB not initialized');
+            const transaction = this._db.transaction(storeName, 'readonly');
+            const store = transaction.objectStore(storeName);
+            const request = store.getAll();
+
+            request.onsuccess = () => resolve(request.result);
+            request.onerror = () => reject(request.error);
+        });
+    }
+};
+
